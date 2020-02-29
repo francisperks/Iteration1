@@ -36,35 +36,32 @@ class BaseScene extends Phaser.Scene {
         this.load.spritesheet('player-death', 'assets/player/player_death.png', { frameWidth: 48, frameHeight: 48 });
         this.load.spritesheet('player-walk', 'assets/player/player_walk.png', { frameWidth: 48, frameHeight: 48 });
         this.load.spritesheet('player-jump', 'assets/player/player_jump.png', { frameWidth: 48, frameHeight: 48 });
+        this.load.image('skull', 'assets/player/player.png')
         this.slash = this.load.spritesheet('slash', 'assets/slash.png', { frameWidth: 110, frameHeight: 129 });
-
-
-
-
-
-
-        this.load.image('main-tileset', 'assets/tileset.png');
+        this.load.image('tileset', 'assets/tileset_Padded.png');
         this.load.image('clouds', 'assets/clouds.png');
         this.load.image('sky', 'assets/sky.png');
-        this.load.tilemapTiledJSON('test-map', 'assets/level1.json');
+        this.load.tilemapTiledJSON('tilemap', 'assets/level3.json');
     }
     create() {
-        this.map = this.make.tilemap({ key: 'test-map' });
-        this.map.mainTileset = this.map.addTilesetImage('tileset', 'main-tileset');
+        this.map = this.make.tilemap({
+            key: 'tilemap'
+        });
+        this.skulls = this.physics.add.group();
+        this.map.mainTileset = this.map.addTilesetImage('tileset_Padded', 'tileset')
         this.map.clouds = this.map.addTilesetImage('clouds', 'clouds');
         this.map.sky = this.map.addTilesetImage('sky', 'sky');
-        this.map.farGrounds = this.map.addTilesetImage('far-grounds', 'far-grounds')
         this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
 
-        let sky = this.map.createStaticLayer('sky', [this.map.sky], 0, 0); sky.setScrollFactor(0.1)
-        let clouds2 = this.map.createStaticLayer('clouds-back', [this.map.clouds, this.map.sky, this.map.mainTileset], 0, 0); clouds2.setScrollFactor(0.2);
-        let clouds = this.map.createStaticLayer('clouds', [this.map.clouds, this.map.sky, this.map.mainTileset], 0, 0); clouds.setScrollFactor(0.3)
+        this.map.createStaticLayer('sky', [this.map.sky], 0, 0).setScrollFactor(0.1);
+        this.map.createStaticLayer('clouds-back', [this.map.clouds], 0, 0).setScrollFactor(0.4);
+        this.map.createStaticLayer('clouds-front', [this.map.clouds], 0, 0).setScrollFactor(0.7);
         this.map.createStaticLayer('background', [this.map.mainTileset], 0, 0);
-        this.map.createStaticLayer('floor', [this.map.mainTileset], 0, 0);
+        this.map.createStaticLayer('platforms', [this.map.mainTileset], 0, 0);
 
         // get reference to object layer in tilemap data
-        let objectLayer = this.map.getObjectLayer("objects");
-        let enemyObjects = [];
+        var objectLayer = this.map.getObjectLayer("objects");
+        var enemyObjects = [];
         // create temporary array for enemy spawn points
         // retrieve custom properties for objects
         objectLayer.objects.forEach(function (object) {
@@ -74,15 +71,17 @@ class BaseScene extends Phaser.Scene {
                 this.createPlayer(object);
             } else if (object.type === "enemySpawn") {
                 enemyObjects.push(object);
+                this.createEnemy(object);
             } else if (object.type === "bossSpawn") {
                 enemyObjects.push(object);
+
             }
         }, this)
         for (let i = 0; i < enemyObjects.length; i++) {
             this.createEnemy(enemyObjects[i]);
         }
 
-        this.map.createStaticLayer('foreground', [this.map.mainTileset], 0, 0);
+        // this.map.createStaticLayer('foreground', [this.map.mainTileset], 0, 0);
         this.createCollision();
         this.setCamera();
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -222,8 +221,32 @@ class BaseScene extends Phaser.Scene {
         this.player.setSize(27, 32, true);
         this.player.setOffset(0, 16);
     }
+    createEnemy(object){
+        let origin = {
+            x: object.x,
+            y: object.y + object.height/2
+        };
+        let dest = {
+            x: object.x + object.width,
+            y: object.y + object.height/2
+        };
+
+        let line = new Phaser.Curves.Line(origin, dest);
+        let skull = this.add.follower(line, origin.x, origin.y, object.sprite);
+        // this.physics.add.existing(skull);
+
+        this.skulls.add(skull);
+
+        skull.startFollow({
+            duration: 1000,
+            repeat: -1,
+            yoyo: true,
+            ease: 'Sine.easeInOut',
+        });
+        skull.body.allowGravity = false;
+    }    
     createCollision() {
-        this.collisionLayer = this.map.getLayer('floor').tilemapLayer;
+        this.collisionLayer = this.map.getLayer('platforms').tilemapLayer;
         this.collisionLayer.setCollisionBetween(0, 1000);
         this.physics.add.collider(this.player, this.collisionLayer);
         // this.physics.add.collider(this.skulls, this.collisionLayer);
