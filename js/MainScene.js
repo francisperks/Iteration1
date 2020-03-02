@@ -1,15 +1,12 @@
 class BaseScene extends Phaser.Scene {
     map;
     player;
+    enemies;
     collisionLayer;
     camera;
     cursors;
     score;
     uiScene;
-    attack1;
-    attack2;
-    attack3;
-    slash;
     constructor() {
         super("MainScene");
     }
@@ -36,8 +33,9 @@ class BaseScene extends Phaser.Scene {
         this.load.spritesheet('player-death', 'assets/player/player_death.png', { frameWidth: 48, frameHeight: 48 });
         this.load.spritesheet('player-walk', 'assets/player/player_walk.png', { frameWidth: 48, frameHeight: 48 });
         this.load.spritesheet('player-jump', 'assets/player/player_jump.png', { frameWidth: 48, frameHeight: 48 });
-        this.load.image('skull', 'assets/player/player.png')
+        this.load.spritesheet('enemy', 'assets/enemy/enemy_idle.png', { frameWidth: 24, frameHeight: 32 });
         this.slash = this.load.spritesheet('slash', 'assets/slash.png', { frameWidth: 110, frameHeight: 129 });
+
         this.load.image('tileset', 'assets/tileset_Padded.png');
         this.load.image('clouds', 'assets/clouds.png');
         this.load.image('sky', 'assets/sky.png');
@@ -47,7 +45,7 @@ class BaseScene extends Phaser.Scene {
         this.map = this.make.tilemap({
             key: 'tilemap'
         });
-        this.skulls = this.physics.add.group();
+        this.enemies = this.physics.add.group();
         this.map.mainTileset = this.map.addTilesetImage('tileset_Padded', 'tileset')
         this.map.clouds = this.map.addTilesetImage('clouds', 'clouds');
         this.map.sky = this.map.addTilesetImage('sky', 'sky');
@@ -60,26 +58,21 @@ class BaseScene extends Phaser.Scene {
         this.map.createStaticLayer('platforms', [this.map.mainTileset], 0, 0);
 
         // get reference to object layer in tilemap data
-        var objectLayer = this.map.getObjectLayer("objects");
-        var enemyObjects = [];
+        let objectLayer = this.map.getObjectLayer("objects");
         // create temporary array for enemy spawn points
         // retrieve custom properties for objects
-        objectLayer.objects.forEach(function (object) {
-            object = Utils.RetrieveCustomProperties(object);
-            // test for object types
-            if (object.type === "playerSpawn") {
-                this.createPlayer(object);
-            } else if (object.type === "enemySpawn") {
-                enemyObjects.push(object);
-                this.createEnemy(object);
-            } else if (object.type === "bossSpawn") {
-                enemyObjects.push(object);
-
-            }
-        }, this)
-        for (let i = 0; i < enemyObjects.length; i++) {
-            this.createEnemy(enemyObjects[i]);
+        if (objectLayer) {
+            objectLayer.objects.forEach(function (object) {
+                object = Utils.RetrieveCustomProperties(object);
+                // test for object types
+                if (object.type === "playerSpawn") {
+                    this.createPlayer(object);
+                } else if (object.type === "enemySpawn") {
+                    this.createEnemy(object);
+                }
+            }, this);
         }
+
 
         // this.map.createStaticLayer('foreground', [this.map.mainTileset], 0, 0);
         this.createCollision();
@@ -87,18 +80,19 @@ class BaseScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys();
 
 
-        this.anims.create({
+        
+        ////// ANIMATIONS PLAYER
+            this.anims.create({
             key: 'slash',
             frames: this.anims.generateFrameNumbers('slash', {
                 start: 0,
-                end:4,
-                first: 4 
+                end: 4,
+                first: 4
             }),
             frameRate: 10,
-        })
+            })
 
-
-        this.anims.create({
+            this.anims.create({
             key: 'walk',
             frames: this.anims.generateFrameNumbers('player-walk', {
                 start: 0,
@@ -106,66 +100,74 @@ class BaseScene extends Phaser.Scene {
             }),
             frameRate: 6,
             repeat: -1,
-        }),
-        
+            })
 
             this.anims.create({
-                key: 'idle',
-                frames: this.anims.generateFrameNumbers('player-idle', {
+            key: 'idle',
+            frames: this.anims.generateFrameNumbers('player-idle', {
+                start: 0,
+                end: 3,
+            }),
+            frameRate: 6,
+            repeat: 0,
+            })
+
+            this.anims.create({
+            key: 'jump',
+            frames: this.anims.generateFrameNumbers('player-jump', {
+                start: 0,
+                end: 3,
+            }),
+            frameRate: 12,
+            repeat: -1
+            })
+
+            this.anims.create({
+            key: 'jump2',
+            frames: this.anims.generateFrameNumbers('player-jump', {
+                start: 3,
+                end: 3,
+            }),
+            frameRate: 12,
+            repeat: -1
+            })
+
+            this.anims.create({
+            key: 'fall',
+            frames: this.anims.generateFrameNumbers('player-jump', {
+                start: 4,
+                end: 5,
+            }),
+            frameRate: 12,
+            repeat: -1
+            })
+
+            this.anims.create({
+            key: 'attack1',
+            frames: this.anims.generateFrameNumbers('player-attack1', {
+                start: 0,
+                end: 5,
+            }),
+            frameRate: 6,
+            repeat: 0,
+            })
+
+        /////// ANIMATIONS ENEMY
+
+            this.anims.create({
+                key: 'enemy-idle',
+                frames: this.anims.generateFrameNumbers('enemy', {
                     start: 0,
-                    end: 3,
+                    end:10
                 }),
                 frameRate: 6,
-                repeat: 0,
-            }),
+                repeat: -1,
+            })
 
-            this.anims.create({
-                key: 'jump',
-                frames: this.anims.generateFrameNumbers('player-jump', {
-                    start: 0,
-                    end: 3,
-                }),
-                frameRate: 12,
-                repeat: -1
-            }),
-
-            this.anims.create({
-                key: 'jump2',
-                frames: this.anims.generateFrameNumbers('player-jump', {
-                    start: 3,
-                    end: 3,
-                }),
-                frameRate: 12,
-                repeat: -1
-            }),
-
-            this.anims.create({
-                key: 'fall',
-                frames: this.anims.generateFrameNumbers('player-jump', {
-                    start: 4,
-                    end: 5,
-                }),
-                frameRate: 12,
-                repeat: -1
-            }),
-
-            this.anims.create({
-                key: 'attack1',
-                frames: this.anims.generateFrameNumbers('player-attack1', {
-                    start: 0,
-                    end: 5,
-                }),
-                frameRate: 6,
-                repeat: 0,
-            }),
-            this.score = 0;
+        this.score = 0;
         this.uiScene = this.scene.get('UIScene');
         this.uiScene.createUIScene(this.scene.key);
         var attack1 = this.input.keyboard.addKey('q');
-        if (attack1.isDown){
-            console.log('attack1')
-            this.animateAttack1();
-        }
 
     }
     update() {
@@ -173,22 +175,22 @@ class BaseScene extends Phaser.Scene {
             this.player.flipX = true;
             this.player.setVelocityX(-120);
 
-            if (this.player.body.onFloor()) {this.player.anims.play('walk', true);}
+            if (this.player.body.onFloor()) { this.player.anims.play('walk', true); }
         }
 
-        else if (this.cursors.right.isDown){
+        else if (this.cursors.right.isDown) {
             this.player.flipX = false;
             this.player.setVelocityX(120);
 
-            if (this.player.body.onFloor()) {this.player.anims.play('walk', true);}
+            if (this.player.body.onFloor()) { this.player.anims.play('walk', true); }
         }
 
         else {
             this.player.setVelocityX(0);
             this.player.anims.play('idle', true)
 
-            if (this.player.body.onFloor()) {this.player.anims.play('idle', true);}
-            else {this.player.anims.play('jump', true);}
+            if (this.player.body.onFloor()) { this.player.anims.play('idle', true); }
+            else { this.player.anims.play('jump', true); }
         }
 
         if (Phaser.Input.Keyboard.JustDown(this.cursors.space) && this.player.body.onFloor()) {
@@ -196,23 +198,19 @@ class BaseScene extends Phaser.Scene {
             this.player.setVelocityY(-175);
         }
 
-        if (this.player.body.velocity.y > 0) {this.player.anims.play('fall')}
+        if (this.player.body.velocity.y > 0) { this.player.anims.play('fall') }
 
-        else if(this.player.body.velocity.y < 0){this.player.anims.play('jump2')}
+        else if (this.player.body.velocity.y < 0) { this.player.anims.play('jump2') }
 
 
-        this.input.keyboard.on('keydown_W', function (event) {     
-       });
-        
+        this.input.keyboard.on('keydown_W', function (event) {
+        });
+
 
         //HIT BOX FIX ON FLIP
-        if (this.player.flipX) {this.player.setOffset(20, 16);} else {this.player.setOffset(0, 16);}
+        if (this.player.flipX) { this.player.setOffset(20, 16); } else { this.player.setOffset(0, 16); }
 
 
-    }
-
-    animateAttack1(){
-        this.player.anims.play('attack1', 60, false)
     }
 
     createPlayer(object) {
@@ -221,35 +219,46 @@ class BaseScene extends Phaser.Scene {
         this.player.setSize(27, 32, true);
         this.player.setOffset(0, 16);
     }
-    createEnemy(object){
+
+    createEnemy(object) {
         let origin = {
             x: object.x,
-            y: object.y + object.height/2
+            y: object.y + object.height / 2
         };
         let dest = {
             x: object.x + object.width,
-            y: object.y + object.height/2
+            y: object.y + object.height / 2
         };
 
         let line = new Phaser.Curves.Line(origin, dest);
-        let skull = this.add.follower(line, origin.x, origin.y, object.sprite);
-        // this.physics.add.existing(skull);
+        let enemy = this.add.follower(line, origin.x, origin.y, object.sprite);
+        this.physics.add.existing(enemy);
+        this.enemies.add(enemy);
 
-        this.skulls.add(skull);
-
-        skull.startFollow({
+        enemy.startFollow({
             duration: 1000,
             repeat: -1,
             yoyo: true,
             ease: 'Sine.easeInOut',
         });
-        skull.body.allowGravity = false;
-    }    
+        enemy.body.allowGravity = false;
+        this.anims.create({
+            key: 'enemy-idle',
+            frames: this.anims.generateFrameNumbers('enemy', {
+                start: 0,
+                end:10
+            }),
+            frameRate: 10,
+            repeat: -1,
+        })
+        enemy.anims.play('enemy-idle', true)
+    }
+
     createCollision() {
         this.collisionLayer = this.map.getLayer('platforms').tilemapLayer;
         this.collisionLayer.setCollisionBetween(0, 1000);
         this.physics.add.collider(this.player, this.collisionLayer);
-        // this.physics.add.collider(this.skulls, this.collisionLayer);
+        this.physics.add.collider(this.enemies, this.collisionLayer);
     }
     setCamera() {
         this.camera = this.cameras.getCamera('')
