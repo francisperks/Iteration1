@@ -1,3 +1,4 @@
+function LERP(a,b,f) {return a + f * (b-a)}
 class BaseScene extends Phaser.Scene {
     map;
     player;
@@ -7,6 +8,7 @@ class BaseScene extends Phaser.Scene {
     cursors;
     score;
     uiScene;
+    enemiesEnts=[];
     constructor() {
         super("MainScene");
     }
@@ -34,18 +36,20 @@ class BaseScene extends Phaser.Scene {
         this.load.spritesheet('player-walk', 'assets/player/player_walk.png', { frameWidth: 48, frameHeight: 48 });
         this.load.spritesheet('player-jump', 'assets/player/player_jump.png', { frameWidth: 48, frameHeight: 48 });
         this.load.spritesheet('enemy', 'assets/enemy/enemy_idle.png', { frameWidth: 24, frameHeight: 32 });
+        this.load.spritesheet('enemy-walk', 'assets/enemy/enemy_walk.png', {frameWidth: 24, frameHeight: 32});
         this.slash = this.load.spritesheet('slash', 'assets/slash.png', { frameWidth: 110, frameHeight: 129 });
 
         this.load.image('tileset', 'assets/tileset_Padded.png');
         this.load.image('clouds', 'assets/clouds.png');
         this.load.image('sky', 'assets/sky.png');
-        this.load.tilemapTiledJSON('tilemap', 'assets/level3.json');
+        this.load.tilemapTiledJSON('tilemap', 'assets/level4.json');
     }
     create() {
         this.map = this.make.tilemap({
             key: 'tilemap'
         });
         this.enemies = this.physics.add.group();
+        this.enemies.runChildUpdate  = true; 
         this.map.mainTileset = this.map.addTilesetImage('tileset_Padded', 'tileset')
         this.map.clouds = this.map.addTilesetImage('clouds', 'clouds');
         this.map.sky = this.map.addTilesetImage('sky', 'sky');
@@ -154,15 +158,6 @@ class BaseScene extends Phaser.Scene {
 
         /////// ANIMATIONS ENEMY
 
-            this.anims.create({
-                key: 'enemy-idle',
-                frames: this.anims.generateFrameNumbers('enemy', {
-                    start: 0,
-                    end:10
-                }),
-                frameRate: 6,
-                repeat: -1,
-            })
 
         this.score = 0;
         this.uiScene = this.scene.get('UIScene');
@@ -170,7 +165,7 @@ class BaseScene extends Phaser.Scene {
         var attack1 = this.input.keyboard.addKey('q');
 
     }
-    update() {
+    update(time,dt) {
         if (this.cursors.left.isDown) {
             this.player.flipX = true;
             this.player.setVelocityX(-120);
@@ -210,7 +205,8 @@ class BaseScene extends Phaser.Scene {
         //HIT BOX FIX ON FLIP
         if (this.player.flipX) { this.player.setOffset(20, 16); } else { this.player.setOffset(0, 16); }
 
-
+       // this.enemies.update(time,dt)
+        this.enemiesEnts.forEach(element => element.update(time,dt));
     }
 
     createPlayer(object) {
@@ -221,6 +217,7 @@ class BaseScene extends Phaser.Scene {
     }
 
     createEnemy(object) {
+        console.log(this)
         let origin = {
             x: object.x,
             y: object.y + object.height / 2
@@ -229,29 +226,33 @@ class BaseScene extends Phaser.Scene {
             x: object.x + object.width,
             y: object.y + object.height / 2
         };
-
+        console.log(origin,dest)
         let line = new Phaser.Curves.Line(origin, dest);
         let enemy = this.add.follower(line, origin.x, origin.y, object.sprite);
         this.physics.add.existing(enemy);
-        this.enemies.add(enemy);
+         this.enemies.add(enemy);
 
         enemy.startFollow({
-            duration: 1000,
+            duration: 8000,
             repeat: -1,
             yoyo: true,
             ease: 'Sine.easeInOut',
         });
-        enemy.body.allowGravity = false;
-        this.anims.create({
-            key: 'enemy-idle',
-            frames: this.anims.generateFrameNumbers('enemy', {
-                start: 0,
-                end:10
-            }),
-            frameRate: 10,
-            repeat: -1,
-        })
-        enemy.anims.play('enemy-idle', true)
+        enemy.body.allowGravity = true;
+        this.enemiesEnts.push(enemy)
+        enemy.update = function(t,dt) {
+            enemy.storeX++;
+            var lerp = LERP(origin.x,dest.x,(Math.sin(t/2000)/2)+0.5);
+            
+            enemy.body.x = lerp;
+            enemy.rotateToPath = true;
+        }
+
+    }
+
+
+    tryAttack1(pointer) {
+        let bullet = this.bullets.get(this.player.x, this.player.y);
     }
 
     createCollision() {
@@ -264,7 +265,7 @@ class BaseScene extends Phaser.Scene {
         this.camera = this.cameras.getCamera('')
         this.camera.startFollow(this.player);
         this.camera.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
-        this.camera.setZoom(1.25);
+        this.camera.setZoom(1);
     }
 }
 
