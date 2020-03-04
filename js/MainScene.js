@@ -177,27 +177,24 @@ class BaseScene extends Phaser.Scene {
 
         if (this.cursors.left.isDown || this.uiScene.leftBtn.isDown) {
             this.player.moveLeft();
-
             if (this.player.body.onFloor()) { this.player.anims.play('walk', true); }
         }
 
         else if (this.cursors.right.isDown || this.uiScene.rightBtn.isDown) {
             this.player.moveRight();
-
             if (this.player.body.onFloor()) { this.player.anims.play('walk', true); }
         }
 
         else {
             this.player.setVelocityX(0);
             this.player.anims.play('idle', true)
-
             if (this.player.body.onFloor()) { this.player.anims.play('idle', true); }
             else { this.player.anims.play('jump', true); }
         }
 
         if (Phaser.Input.Keyboard.JustDown(this.cursors.space) && this.player.body.onFloor()) {
             this.player.anims.play('jump', true);
-            this.player.setVelocityY(-175);
+            this.player.moveJump();
             this.tryAttack1();
         }
 
@@ -338,7 +335,7 @@ class BaseScene extends Phaser.Scene {
         this.camera = this.cameras.getCamera('')
         this.camera.startFollow(this.player);
         this.camera.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
-        this.camera.setZoom(1);
+        this.camera.setZoom(3);
     }
 }
 
@@ -376,27 +373,27 @@ class UIScene extends Phaser.Scene {
     // }
     createPauseMenu() {
         //Create the pauseBtn. Note this will not yet make it display in the scene.
-        this.pauseBtn = new Button(this, config.width - 60, 10, "pauseBtn", function () {
+        this.pauseBtn = new Button(this, config.width - 150, 10, "pauseBtn", function () {
             this.scene.pauseMenu.visible = true;
             this.scene.currentScene.scene.pause();
         });
 
         /// mvement butons
 
-        this.leftBtn = new Button(this, 20, config.height - 60, "playBtn", function () {
+        this.leftBtn = new Button(this, 20, config.height - 150, "playBtn", function () {
             this.scene.currentScene.player.moveLeft();
         });
-        this.rightBtn = new Button(this, 100, config.height - 60, "playBtn", function () {
+        this.rightBtn = new Button(this, 175, config.height - 150, "playBtn", function () {
             this.scene.currentScene.player.moveRight();
         })
-        this.jumpBtn = new Button(this, config.width - 100, config.height - 60, "playBtn", function() {
-            this.playerJump()
+        this.jumpBtn = new Button(this, config.width - 150, config.height - 150, "playBtn", function() {
+            this.scene.currentScene.player.moveJump()
         })
 
-        this.pauseBtn.setScale(0.4);
-        this.leftBtn.setScale(0.4);
-        this.rightBtn.setScale(0.4);
-        this.jumpBtn.setScale(0.4);
+        this.pauseBtn.setScale(0.75);
+        this.leftBtn.setScale(0.75);
+        this.rightBtn.setScale(0.75);
+        this.jumpBtn.setScale(0.75);
         this.leftBtn.flipX = true;
         this.jumpBtn.angle = 90;
         this.jumpBtn.flipX = true;
