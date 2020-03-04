@@ -173,17 +173,16 @@ class BaseScene extends Phaser.Scene {
 
     }
     update(time,dt) {
-        if (this.cursors.left.isDown) {
-            console.log("moving left")
-            this.player.flipX = true;
-            this.player.setVelocityX(-120);
+        this.player.update();
+
+        if (this.cursors.left.isDown || this.uiScene.leftBtn.isDown) {
+            this.player.moveLeft();
 
             if (this.player.body.onFloor()) { this.player.anims.play('walk', true); }
         }
 
-        else if (this.cursors.right.isDown) {
-            this.player.flipX = false;
-            this.player.setVelocityX(120);
+        else if (this.cursors.right.isDown || this.uiScene.rightBtn.isDown) {
+            this.player.moveRight();
 
             if (this.player.body.onFloor()) { this.player.anims.play('walk', true); }
         }
@@ -223,8 +222,12 @@ class BaseScene extends Phaser.Scene {
     }
 
     createPlayer(object) {
-        this.player = this.physics.add.sprite(object.x, object.y, 'player-idle', 1);
+        this.player = new Player(this, object.x, object.y, 'player-idle');
+        //this.player = this.physics.add.sprite(object.x, object.y, 'player-idle');
         // this.player.setCollideWorldBounds(true);
+        
+        this.player.enableBody(true, this.player.x, this.player.y, true, true);
+        console.log(this.player);
         this.player.setSize(27, 32, true);
         this.player.setOffset(0, 16);
     }
@@ -258,7 +261,9 @@ class BaseScene extends Phaser.Scene {
         };
         // console.log(origin,dest)
         let line = new Phaser.Curves.Line(origin, dest);
+        console.log(line);
         this.enemy = this.add.follower(line, origin.x, origin.y, object.sprite);
+        console.log(this.enemy);
         // this.physics.add.existing(enemy);
         this.enemies.add(this.enemy);
 
@@ -273,7 +278,7 @@ class BaseScene extends Phaser.Scene {
             ease: 'Sine.easeInOut',
         });
         this.enemy.anims.play('enemy-walk')
-        this.enemy.body.allowGravity = true;
+        this.enemy.body.allowGravity = false;
 
 
         
@@ -379,10 +384,10 @@ class UIScene extends Phaser.Scene {
         /// mvement butons
 
         this.leftBtn = new Button(this, 20, config.height - 60, "playBtn", function () {
-            this.playerLeft()
+            this.scene.currentScene.player.moveLeft();
         });
         this.rightBtn = new Button(this, 100, config.height - 60, "playBtn", function () {
-            this.playerRight()
+            this.scene.currentScene.player.moveRight();
         })
         this.jumpBtn = new Button(this, config.width - 100, config.height - 60, "playBtn", function() {
             this.playerJump()
