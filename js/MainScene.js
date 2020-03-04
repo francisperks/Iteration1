@@ -36,8 +36,9 @@ class BaseScene extends Phaser.Scene {
         this.load.spritesheet('player-walk', 'assets/player/player_walk.png', { frameWidth: 48, frameHeight: 48 });
         this.load.spritesheet('player-jump', 'assets/player/player_jump.png', { frameWidth: 48, frameHeight: 48 });
         this.load.spritesheet('enemy', 'assets/enemy/enemy_idle.png', { frameWidth: 24, frameHeight: 32 });
-        this.load.spritesheet('enemy-walk', 'assets/enemy/enemy_walk.png', {frameWidth: 24, frameHeight: 32});
+        this.load.spritesheet('enemy-walk', 'assets/enemy/enemy_walk.png', {frameWidth: 22, frameHeight: 32});
         this.slash = this.load.spritesheet('slash', 'assets/slash.png', { frameWidth: 110, frameHeight: 129 });
+        this.load.image('bullet', 'assets/bullet.png');
 
         this.load.image('tileset', 'assets/tileset_Padded.png');
         this.load.image('clouds', 'assets/clouds.png');
@@ -77,6 +78,11 @@ class BaseScene extends Phaser.Scene {
             }, this);
         }
 
+
+        this.bullets = this.physics.add.group({
+            defaultKey: 'bullet',
+            maxSize: 500
+        })
 
         // this.map.createStaticLayer('foreground', [this.map.mainTileset], 0, 0);
         this.createCollision();
@@ -191,6 +197,7 @@ class BaseScene extends Phaser.Scene {
         if (Phaser.Input.Keyboard.JustDown(this.cursors.space) && this.player.body.onFloor()) {
             this.player.anims.play('jump', true);
             this.player.setVelocityY(-175);
+            this.tryAttack1();
         }
 
         if (this.player.body.velocity.y > 0) { this.player.anims.play('fall') }
@@ -217,42 +224,95 @@ class BaseScene extends Phaser.Scene {
     }
 
     createEnemy(object) {
-        console.log(this)
+        
+
+         this.anims.create({
+             key: 'enemy-walk',
+             frames: this.anims.generateFrameNumbers('enemy-walk', {
+                 start: 0,
+                 end: 12,
+             }),
+             frameRate: 25,
+             repeat: -1,
+             
+         })
+
+         console.log(this)
         let origin = {
-            x: object.x,
-            y: object.y + object.height / 2
+            //x: object.x,
+            //y: object.y + object.height / 2
+            x: 306,
+            y: 320
         };
         let dest = {
-            x: object.x + object.width,
-            y: object.y + object.height / 2
+            // x: object.x + object.width,
+            // y: object.y + object.height / 2
+            x: 712,
+            y: 320
         };
-        console.log(origin,dest)
+        // console.log(origin,dest)
         let line = new Phaser.Curves.Line(origin, dest);
-        let enemy = this.add.follower(line, origin.x, origin.y, object.sprite);
-        this.physics.add.existing(enemy);
-         this.enemies.add(enemy);
+        this.enemy = this.add.follower(line, origin.x, origin.y, object.sprite);
+        // this.physics.add.existing(enemy);
+        this.enemies.add(this.enemy);
 
-        enemy.startFollow({
+        this.enemy.startFollow({
             duration: 8000,
             repeat: -1,
             yoyo: true,
+            onYoyo: this.flipImage,
+            onRepeat: this.flipImage,
+            callbackScope: this,
+            startAt: Math.random(),
             ease: 'Sine.easeInOut',
         });
-        enemy.body.allowGravity = true;
-        this.enemiesEnts.push(enemy)
-        enemy.update = function(t,dt) {
-            enemy.storeX++;
-            var lerp = LERP(origin.x,dest.x,(Math.sin(t/2000)/2)+0.5);
-            
-            enemy.body.x = lerp;
-            enemy.rotateToPath = true;
-        }
+        this.enemy.anims.play('enemy-walk')
+        this.enemy.body.allowGravity = true;
+
+
+        
+        // this.enemiesEnts.push(enemy)
+        // enemy.update = function(t,dt) {
+        //     enemy.storeX++;
+        //     var n = (Math.sin(t/3000)/2)+0.5;
+        //     var lerp = LERP(origin.x,dest.x,n);
+        //     if (n >= 0.93) enemy.flipX = true;                  // thanks evan
+        //     if (n <= 0.03) enemy.flipX = false;
+        //    // enemy.flipX = t%3000 < 1500
+        //     enemy.body.x = lerp;
+        //     enemy.rotateToPath = true;
+        // }
 
     }
 
 
     tryAttack1(pointer) {
         let bullet = this.bullets.get(this.player.x, this.player.y);
+        if(bullet){
+            this.attack1(bullet, this.player.direction, this.enemiesEnts)
+        }
+    }
+
+    flipImage(){
+        this.enemy.flipX = !this.enemy.flipX;
+    }
+
+    attack1(bullet,direction,target){
+        bullet.setDepth(3);
+        bullet.body.collideWorldBounds = true;
+        bullet.body.onWorldBounds = true;
+        bullet.enableBody(false, bullet.x, bullet.y, true, true);
+        bullet.direction = direction;
+        this.physics.velocityFromRotation(bullet.direction, 500, bullet.body.velocity);
+        if(target === this.player){
+            this.physics.add.overlap(this.player, bullet, this.playerHit, null, this);
+        }else{
+            // else check for overlap with all enemy tanks
+            for(let i = 0; i  < this.enemiesEnts.length; i++){
+                this.physics.add.overlap(this.enemiesEnts[i], bullet, this.attackHitEnemy, null, this)
+            }
+        }
+
     }
 
     createCollision() {
@@ -329,6 +389,13 @@ class UIScene extends Phaser.Scene {
                 this.scene.pauseMenu.visible = false;
                 this.scene.currentScene.scene.resume();
             }).setScale(0.5),
+            this.fullscreen = new Button(this, 71.5+150, 6, "trophyBtn", function () {
+                if(!this.scene.scale.isFullscreen){
+                    this.scene.scale.startFullscreen();
+                } else{
+                    this.scene.scale.stopFullscreen();
+                }
+            }).setScale(0.5)
 
         ]);
 
@@ -404,6 +471,8 @@ class MenuScene extends Phaser.Scene {
             new Button(this, 630 - 64, 250, "trophyBtn", function () {
                 console.log("Achievements not yet set up.");
             }, false),
+
+            
         ]);
 
         //Add the mainMenu to the scene. This will now make it display.
@@ -425,6 +494,7 @@ class MenuScene extends Phaser.Scene {
             new MaskSlider(this, 280, 300, 250, 30, "sliderOutline", "sliderBar", "sliderDial", function () {
                 this.scene.sfx.setVolume(this.percent / 100);
             }),
+            
         ]);
 
         //Add the settingsMenu to the scene. This will now make it display.
