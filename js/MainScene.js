@@ -7,6 +7,7 @@ class BaseScene extends Phaser.Scene {
     camera;
     cursors;
     score;
+    bullets;
     uiScene;
     enemiesEnts=[];
     constructor() {
@@ -173,6 +174,7 @@ class BaseScene extends Phaser.Scene {
     }
     update(time,dt) {
         if (this.cursors.left.isDown) {
+            console.log("moving left")
             this.player.flipX = true;
             this.player.setVelocityX(-120);
 
@@ -206,14 +208,18 @@ class BaseScene extends Phaser.Scene {
 
 
         this.input.keyboard.on('keydown_W', function (event) {
+            this.tryAttack1();
         });
+        this.input.keyboard.on('keydown_A', function (event) {
+            console.log('Hello from the A Key!');
+          });
 
 
         //HIT BOX FIX ON FLIP
         if (this.player.flipX) { this.player.setOffset(20, 16); } else { this.player.setOffset(0, 16); }
 
        // this.enemies.update(time,dt)
-        this.enemiesEnts.forEach(element => element.update(time,dt));
+        // this.enemiesEnts.forEach(element => element.update(time,dt));
     }
 
     createPlayer(object) {
@@ -287,7 +293,7 @@ class BaseScene extends Phaser.Scene {
 
 
     tryAttack1(pointer) {
-        let bullet = this.bullets.get(this.player.x, this.player.y);
+        let bullet = this.bullets.get(this.player.x+ 50, this.player.y);
         if(bullet){
             this.attack1(bullet, this.player.direction, this.enemiesEnts)
         }
@@ -296,6 +302,8 @@ class BaseScene extends Phaser.Scene {
     flipImage(){
         this.enemy.flipX = !this.enemy.flipX;
     }
+
+    
 
     attack1(bullet,direction,target){
         bullet.setDepth(3);
@@ -308,8 +316,8 @@ class BaseScene extends Phaser.Scene {
             this.physics.add.overlap(this.player, bullet, this.playerHit, null, this);
         }else{
             // else check for overlap with all enemy tanks
-            for(let i = 0; i  < this.enemiesEnts.length; i++){
-                this.physics.add.overlap(this.enemiesEnts[i], bullet, this.attackHitEnemy, null, this)
+            for(let i = 0; i  < this.enemies.length; i++){
+                this.physics.add.overlap(this.enemies[i], bullet, this.attackHitEnemy, null, this)
             }
         }
 
@@ -361,7 +369,6 @@ class UIScene extends Phaser.Scene {
     //     this.healthBar.bar.mask = new Phaser.Display.Masks.BitmapMask(this, this.healthBar.healthMask);
     //     this.healthBar.healthMask.offSet = 0;
     // }
-
     createPauseMenu() {
         //Create the pauseBtn. Note this will not yet make it display in the scene.
         this.pauseBtn = new Button(this, config.width - 60, 10, "pauseBtn", function () {
@@ -369,11 +376,30 @@ class UIScene extends Phaser.Scene {
             this.scene.currentScene.scene.pause();
         });
 
-        this.pauseBtn.setScale(0.4)
+        /// mvement butons
 
+        this.leftBtn = new Button(this, 20, config.height - 60, "playBtn", function () {
+            this.playerLeft()
+        });
+        this.rightBtn = new Button(this, 100, config.height - 60, "playBtn", function () {
+            this.playerRight()
+        })
+        this.jumpBtn = new Button(this, config.width - 100, config.height - 60, "playBtn", function() {
+            this.playerJump()
+        })
+
+        this.pauseBtn.setScale(0.4);
+        this.leftBtn.setScale(0.4);
+        this.rightBtn.setScale(0.4);
+        this.jumpBtn.setScale(0.4);
+        this.leftBtn.flipX = true;
+        this.jumpBtn.angle = 90;
+        this.jumpBtn.flipX = true;
         //Add the pauseBtn to the scene. This will now make it display.
         this.add.existing(this.pauseBtn);
-
+        this.add.existing(this.leftBtn);
+        this.add.existing(this.rightBtn);
+        this.add.existing(this.jumpBtn);
         //Create the pauseMenu. Note this will not yet make it display in the scene.
 
         let x = 150;
