@@ -19,6 +19,7 @@ class Button extends Phaser.GameObjects.Sprite {
         super(scene, x, y, texture);
         
         this.toggleable = toggleable;
+        this.isDown = false;
 
         //If the button is toggleable, retrieve the other parameters needed to allow the Button to function.
         if(this.toggleable) {
@@ -46,6 +47,7 @@ class Button extends Phaser.GameObjects.Sprite {
                     this.setTexture(this.toggleTexture);
                     this.toggleTexture = tempTexture;
                 }
+                this.isDown = false;
 
                 //Run the callback function provided with the Button as the context (this).
                 callback.call(this);
@@ -57,6 +59,7 @@ class Button extends Phaser.GameObjects.Sprite {
             if(this.enabled){
                 pointer.lastBtn = this;
                 this.setTint(0x00ffff);
+                this.isDown = true;
             }
         });
     }
