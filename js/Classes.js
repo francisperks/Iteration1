@@ -8,17 +8,27 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         scene.physics.add.existing(this);
         scene.add.existing(this);
 
-        this.ability1 = new Ability(scene, this, 10, function () {
+        this.attackOne = new Ability(scene, this, 10, function () {
             if (this.sprite !== null) {
                 console.log("fire ability 1");
+                this.slash = this.add.sprite(100, 200, 'slash');
+                this.slash.visible = false;
+                this.slash.anchor.setTo(0.5, 0.5);
+                this.slash.animations.add('slash', [0, 1, 2, 3, 4], 20, false);
+                game.physics.enable(slash, Phaser.Physics.ARCADE);
+
+                this.slash.visible = true;
+                this.slash.animations.play('slash');
+                this.slash.body.x = this.body.x - 5;
+                this.slash.body.y = this.body.y - 36;
             }
-        });
+        }, 2, -5, -30, "slash", "slash");
     }
 
     moveRight() {
         this.flipX = false;
         this.setVelocityX(this.maxSpeed);
-        this.createAnimations("player-walk", "player-walk", 0, 5, 6, -1);
+        // this.createAnimations("player-walk", "player-walk", 0, 5, 6, -1);
         this.playAnimations("player-walk")
     }
 
@@ -32,6 +42,15 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     update(){
+        // if(this.playerAttack == false){
+        //     if(this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).isDown){
+        //         this.playerAttack = true;
+        //     }
+        // }
+        // if(this.playerAttack == true){
+        //     this.ability1();
+        //     Game.time.events.add(Phaser.Timer.SECOND * 0.2, stopAttack, this)
+        // }
     }
 
     createAnimations(key, image, startFrame, endFrame, frameRate, repeat) {
@@ -50,16 +69,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.anims.play(animationKey, true)
     }
 
-    ability1() {
-        this.ability1.fire();
-    }
-
-    ability2() {
-
-    }
-
-    ability3() {
-
+    attackOne() {
+        console.log(hello)
+        this.attackOne;
     }
 }
 
@@ -67,10 +79,10 @@ class Ability {
     constructor(scene, owner, strength, callback, cooldown = 0.5, xOffset = 0, yOffset = 0, texture = "", animationKey = "") {
         this.scene = scene;
         this.owner = owner;
+        this.strength = strength;
         this.xOffset = xOffset;
-
+        this.yOffset = yOffset;
         this.fire = callback;
-
         this.sprite = null;
 
         if (texture !== "") {

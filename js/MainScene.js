@@ -38,7 +38,7 @@ class BaseScene extends Phaser.Scene {
         this.load.spritesheet('player-jump', 'assets/player/player_jump.png', { frameWidth: 48, frameHeight: 48 });
         this.load.spritesheet('enemy', 'assets/enemy/enemy_idle.png', { frameWidth: 24, frameHeight: 32 });
         this.load.spritesheet('enemy-walk', 'assets/enemy/enemy_walk.png', { frameWidth: 22, frameHeight: 32 });
-        this.slash = this.load.spritesheet('slash', 'assets/slash.png', { frameWidth: 110, frameHeight: 129 });
+        this.load.spritesheet('slash', 'assets/slash.png', { frameWidth: 110, frameHeight: 129 });
         this.load.image('bullet', 'assets/bullet.png');
 
         this.load.image('tileset', 'assets/tileset_Padded.png');
@@ -121,6 +121,15 @@ class BaseScene extends Phaser.Scene {
         //     frameRate: 12,
         //     repeat: -1
         // });
+
+        this.anims.create({
+            key: 'slash',
+            frames: this.anims.generateFrameNumbers('slash', {
+                start: 0,
+                end: 4,
+            }),
+            framerate: 6,
+        })
 
         this.bullets = this.physics.add.group({
             defaultKey: 'bullet',
@@ -313,11 +322,21 @@ class UIScene extends Phaser.Scene {
         this.jumpBtn = new Button(this, config.width - 150, config.height - 150, "playBtn", function () {
             this.scene.currentScene.player.moveJump()
         })
+        this.ability1 = new Button(this, config.width - 75, config.height - 150, "trophyBtn", function() {
+            // this.scene.currentScene.player.attackOne();
+            console.log("Attack 1")
+            this.scene.currentScene.player.attackOne.fire();
+            // this.attackButton = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+            // this.abilityOne.anims.play("slash", true);
+            // this.abilityOne.body.x = this.player.body.x - 5;
+            // this.abilityOne.body.y = this.player.body.y - 36;
+        })
 
         this.pauseBtn.setScale(0.75);
         this.leftBtn.setScale(0.75);
         this.rightBtn.setScale(0.75);
         this.jumpBtn.setScale(0.75);
+        this.ability1.setScale(0.9)
         this.leftBtn.flipX = true;
         this.jumpBtn.angle = 90;
         this.jumpBtn.flipX = true;
@@ -326,6 +345,7 @@ class UIScene extends Phaser.Scene {
         this.add.existing(this.leftBtn);
         this.add.existing(this.rightBtn);
         this.add.existing(this.jumpBtn);
+        this.add.existing(this.ability1)
         //Create the pauseMenu. Note this will not yet make it display in the scene.
 
         let x = 150;
