@@ -2,34 +2,32 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, frame = 0) {
         super(scene, x, y, texture, frame);
         this.maxSpeed = 120;
+        this.usingAbility = false;
 
         this.body = new Phaser.Physics.Arcade.Body(scene.physics.world, this);
 
         scene.physics.add.existing(this);
         scene.add.existing(this);
 
+        this.createAnimations("player-walk", "player-walk", 0, 5, 8, -1);
+        this.createAnimations("player-jump", "player-jump", 3, 3, 12, 0);
+        this.createAnimations("player-idle", "player-idle", 0, 3, 6, -1);
+        this.createAnimations("player-fall", "player-jump", 4, 4, 12, 0);
+        this.createAnimations("player-attack1", "player-attack1", 0, 5, 12, 0);
+        this.createAnimations("player-attack2", "player-attack2", 0, 5, 12, 0);
+        this.createAnimations("player-attack3", "player-death", 0, 5, 12, 0);
         this.attackOne = new Ability(scene, this, 10, function () {
             if (this.sprite !== null) {
-                console.log("fire ability 1");
-                this.slash = this.add.sprite(100, 200, 'slash');
-                this.slash.visible = false;
-                this.slash.anchor.setTo(0.5, 0.5);
-                this.slash.animations.add('slash', [0, 1, 2, 3, 4], 20, false);
-                game.physics.enable(slash, Phaser.Physics.ARCADE);
-
-                this.slash.visible = true;
-                this.slash.animations.play('slash');
-                this.slash.body.x = this.body.x - 5;
-                this.slash.body.y = this.body.y - 36;
+                this.playAnimations("player-attack")
             }
         }, 2, -5, -30, "slash", "slash");
+
     }
 
     moveRight() {
         this.flipX = false;
         this.setVelocityX(this.maxSpeed);
-        // this.createAnimations("player-walk", "player-walk", 0, 5, 6, -1);
-        this.playAnimations("player-walk")
+        this.update();
     }
 
     moveLeft() {
@@ -38,25 +36,30 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     moveJump() {
-        this.setVelocityY(-170)
+        if (this.body.onFloor()) {
+            this.setVelocityY(-170)
+        }
     }
 
-    update(){
-        // if(this.playerAttack == false){
-        //     if(this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).isDown){
-        //         this.playerAttack = true;
-        //     }
-        // }
-        // if(this.playerAttack == true){
-        //     this.ability1();
-        //     Game.time.events.add(Phaser.Timer.SECOND * 0.2, stopAttack, this)
-        // }
+    update() {
+        if (!this.usingAbility) {
+            if (!this.body.onFloor() && this.body.velocity.y > 0) {
+                this.playAnimations("player-fall")
+            } else if (!this.body.onFloor() && this.body.velocity.y < 0) {
+                this.playAnimations("player-jump")
+            } else if (this.body.velocity.x === 0 && this.body.onFloor()) {
+                this.playAnimations("player-idle")
+            }
+            else if (this.body.velocity.x > 0 || this.body.velocity.x < 0) {
+                this.playAnimations("player-walk")
+            }
+        }
     }
 
     createAnimations(key, image, startFrame, endFrame, frameRate, repeat) {
-        this.anims.create({
+        this.scene.anims.create({
             key: key,
-            frames: Phaser.Animations.AnimationManager.generateFrameNumbers(image, {
+            frames: this.scene.anims.generateFrameNumbers((image), {
                 start: startFrame,
                 end: endFrame,
             }),
@@ -70,8 +73,6 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     attackOne() {
-        console.log(hello)
-        this.attackOne;
     }
 }
 
@@ -99,28 +100,68 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.setSize(18, 24).setOffset(-2, 8).setScale(1.5).setDepth(0)
         scene.physics.add.existing(this);
         scene.add.existing(this);
-
+        
+        this.zones = [];
+        this.scene.anims.create({
+            key: "enemyAttack",
+            frames: this.scene.anims.generateFrameNumbers("enemy_attack", {
+                start: 0,
+                end: 17,
+            }),
+            frameRate: 12,
+            repeat: 0,
+        });
+        
     }
-
     speedMult = 1;
+    xCoord = -15;
 
     move() {
         var xOne = 306;
         var xTwo = 712;
 
-        if (this.x > xTwo){
-            this.speedMult = -1;this.flipX = true;
-    }else if (this.x < xOne){
-            this.speedMult = 1;this.flipX = false;}
-        this.setVelocityX(72 * this.speedMult);
+        if (this.x > xTwo) {
+            this.speedMult = -1;
+            this.flipX = true;
+            this.xCoord = 30;
+        } else if (this.x < xOne) {
+            this.speedMult = 1;
+            this.flipX = false;
+            this.xCoord = -15;
+        }
+        this.setVelocityX(30 * this.speedMult);
+
+        this.graphics.clear();
+        for(var i = 0; i < this.zones.length; i++){
+            var tempZone = this.zones[i]; 
+                tempZone.x = this.x -this.xCoord;
+                tempZone.y = this.y - 12.5;
+            if(tempZone.contains(this.scene.player.x, this.scene.player.y)){
+                this.seePlayer();
+                this.attack();
+                // this.graphics.fillStyle(0x00000aa, 1)
+            } 
+            // this.graphics.fillRectShape(tempZone);
+        }
     }
+
+    seePlayer(){
+        this.setVelocity(0)
+
+    }
+
+    giveZone(){
+        this.graphics = this.scene.add.graphics({ lineStyle: { width: 2, color: 0x0000aa }, fillStyle: { color: 0xaa0000 } });
+        this.zone = new Phaser.Geom.Rectangle(this.x, this.y, 5, this.body.height)
+        this.graphics.fillRectShape(this.zone)
+        this.zones.push(this.zone)
+    }
+
 
     update() {
         this.move();
-        // console.log(this.x)
     }
 
     attack() {
-
     }
 }

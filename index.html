@@ -23,7 +23,12 @@
             type: Phaser.WEBGL,
             width: 1280,
             height: 720,
-            backgroundColor: '#333',pixelArt: true,zoom: 2,
+            backgroundColor: '#333',
+            pixelArt: true,
+            zoom: 1,
+            input: {
+                activePointers: 3
+            },
             scale: {
                 mode: Phaser.Scale.FIT,
                 autoCenter: Phaser.Scale.CENTER_BOTH
@@ -34,7 +39,7 @@
                     gravity: {
                         y: 400
                     },
-                    debug: false
+                    debug: true
                 }
             },
 
