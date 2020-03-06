@@ -1,17 +1,18 @@
 function LERP(a, b, f) { return a + f * (b - a) }
 class BaseScene extends Phaser.Scene {
-    map;
-    player;
-    enemies;
-    collisionLayer;
-    camera;
-    cursors;
-    score;
-    bullets;
-    uiScene;
-    enemiesEnts = [];
     constructor() {
         super("MainScene");
+
+        this.map = 0;
+        this.player = 0;
+        this.enemies = 0;
+        this.collisionLayer = 0;
+        this.camera = 0;
+        this.cursors = 0;
+        this.score = 0;
+        this.bullets = 0;
+        this.uiScene = 0;
+        this.enemiesEnts = [];
     }
     init(data) {
         console.log(data);
@@ -29,16 +30,17 @@ class BaseScene extends Phaser.Scene {
         }
     }
     preload() {
-        this.load.spritesheet('player-idle', 'assets/player/player_idle.png', { frameWidth: 48, frameHeight: 48 });
-        this.load.spritesheet('player-attack1', 'assets/player/player_attack1.png', { frameWidth: 48, frameHeight: 48 });
-        this.load.spritesheet('player-attack2', 'assets/player/player_attack2.png', { frameWidth: 48, frameHeight: 48 });
+        this.load.spritesheet('player-idle', 'assets/player/player_idle-new.png', { frameWidth: 64, frameHeight: 48 });
+        this.load.spritesheet('player-attack1', 'assets/player/player_attack1-new.png', { frameWidth: 64, frameHeight: 48 });
+        this.load.spritesheet('player-attack2', 'assets/player/player_attack2-new.png', { frameWidth: 64, frameHeight: 48 });
         this.load.spritesheet('player-attack3', 'assets/player/player_attack3.png', { frameWidth: 48, frameHeight: 48 });
         this.load.spritesheet('player-death', 'assets/player/player_death.png', { frameWidth: 48, frameHeight: 48 });
-        this.load.spritesheet('player-walk', 'assets/player/player_walk.png', { frameWidth: 48, frameHeight: 48 });
-        this.load.spritesheet('player-jump', 'assets/player/player_jump.png', { frameWidth: 48, frameHeight: 48 });
-        this.load.spritesheet('enemy', 'assets/enemy/enemy_idle.png', { frameWidth: 24, frameHeight: 32 });
-        this.load.spritesheet('enemy-walk', 'assets/enemy/enemy_walk.png', { frameWidth: 22, frameHeight: 32 });
-        this.slash = this.load.spritesheet('slash', 'assets/slash.png', { frameWidth: 110, frameHeight: 129 });
+        this.load.spritesheet('player-walk', 'assets/player/player_walk.png', { frameWidth: 64, frameHeight: 48 });
+        this.load.spritesheet('player-jump', 'assets/player/player_jump-new.png', { frameWidth: 64, frameHeight: 48 });
+        this.load.spritesheet('enemy-idle', 'assets/enemy/enemy_idle-new.png', { frameWidth: 48, frameHeight: 40 });
+        this.load.spritesheet('enemy-walk', 'assets/enemy/enemy_walk-new.png', { frameWidth: 48, frameHeight: 40 });
+        this.load.spritesheet('enemy_attack', 'assets/enemy/enemy_attack-new.png', { frameWidth: 48, frameHeight: 40 });
+        this.load.spritesheet('slash', 'assets/slash.png', { frameWidth: 110, frameHeight: 129 });
         this.load.image('bullet', 'assets/bullet.png');
 
         this.load.image('tileset', 'assets/tileset_Padded.png');
@@ -62,11 +64,7 @@ class BaseScene extends Phaser.Scene {
         this.map.createStaticLayer('clouds-front', [this.map.clouds], 0, 0).setScrollFactor(0.7);
         this.map.createStaticLayer('background', [this.map.mainTileset], 0, 0);
         this.map.createStaticLayer('platforms', [this.map.mainTileset], 0, 0);
-
-        // get reference to object layer in tilemap data
         let objectLayer = this.map.getObjectLayer("objects");
-        // create temporary array for enemy spawn points
-        // retrieve custom properties for objects
         if (objectLayer) {
             objectLayer.objects.forEach(function (object) {
                 object = Utils.RetrieveCustomProperties(object);
@@ -78,56 +76,10 @@ class BaseScene extends Phaser.Scene {
                 }
             }, this);
         }
-
-
-        
-
-        // this.anims.create({
-        //     key: 'idle',
-        //     frames: this.anims.generateFrameNumbers('player-idle', {
-        //         start: 0,
-        //         end: 3,
-        //     }),
-        //     frameRate: 6,
-        //     repeat: 0,
-        // });
-
-        this.anims.create({
-            key: 'jump',
-            frames: this.anims.generateFrameNumbers('player-jump', {
-                start: 0,
-                end: 3,
-            }),
-            frameRate: 12,
-            repeat: -1
-        });
-
-        // this.anims.create({
-        //     key: 'jump2',
-        //     frames: this.anims.generateFrameNumbers('player-jump', {
-        //         start: 3,
-        //         end: 3,
-        //     }),
-        //     frameRate: 12,
-        //     repeat: -1
-        // });
-
-        // this.anims.create({
-        //     key: 'fall',
-        //     frames: this.anims.generateFrameNumbers('player-jump', {
-        //         start: 4,
-        //         end: 5,
-        //     }),
-        //     frameRate: 12,
-        //     repeat: -1
-        // });
-
         this.bullets = this.physics.add.group({
             defaultKey: 'bullet',
             maxSize: 500
         })
-
-        // this.map.createStaticLayer('foreground', [this.map.mainTileset], 0, 0);
         this.createCollision();
         this.setCamera();
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -138,73 +90,24 @@ class BaseScene extends Phaser.Scene {
         var attack1 = this.input.keyboard.addKey('q');
 
     }
+
     update(time, dt) {
         this.player.update();
 
-        if (this.cursors.left.isDown || this.uiScene.leftBtn.isDown) {
-            this.player.moveLeft();
-            if (this.player.body.onFloor()) {
-                // this.player.anims.play('walk', true); 
-            }
-        }
+        if (this.cursors.left.isDown || this.uiScene.leftBtn.isDown) {this.player.moveLeft();}
+        else if (this.cursors.right.isDown || this.uiScene.rightBtn.isDown) {this.player.moveRight();}
+        else {this.player.setVelocityX(0);}
+        if (Phaser.Input.Keyboard.JustDown(this.cursors.space) && this.player.body.onFloor()) {this.player.moveJump();}
 
-        else if (this.cursors.right.isDown || this.uiScene.rightBtn.isDown) {
-            this.player.moveRight();
-            if (this.player.body.onFloor()) {
-                // this.player.anims.play('walk', true);
-            }
-        }
-
-        else {
-            this.player.setVelocityX(0);
-            // this.player.anims.play('idle', true)
-            if (this.player.body.onFloor()) {
-                // this.player.anims.play('idle', true);
-            }
-            else {
-                // this.player.anims.play('jump', true);
-            }
-        }
-
-        if (Phaser.Input.Keyboard.JustDown(this.cursors.space) && this.player.body.onFloor()) {
-            // this.player.anims.play('jump', true);
-            this.player.moveJump();
-            this.tryAttack1();
-        }
-
-        if (this.player.body.velocity.y > 0) {
-            // this.player.anims.play('fall')
-        }
-
-        else if (this.player.body.velocity.y < 0) {
-            // this.player.anims.play('jump2')
-        }
-
-
-        this.input.keyboard.on('keydown_W', function (event) {
-            this.player.ability1();
-        });
-        this.input.keyboard.on('keydown_A', function (event) {
-            console.log('Hello from the A Key!');
-        });
-
-
-        //HIT BOX FIX ON FLIP
-        if (this.player.flipX) { this.player.setOffset(20, 16); } else { this.player.setOffset(0, 16); }
-
-        // this.enemies.update(time,dt)
-        // this.enemiesEnts.forEach(element => element.update(time,dt));
+        // if (this.player.flipX) { this.player.setOffset(0, 0); } else { this.player.setOffset(0, 0); }
     }
 
     createPlayer(object) {
         this.player = new Player(this, object.x, object.y, 'player-idle');
-        //this.player = this.physics.add.sprite(object.x, object.y, 'player-idle');
-        // this.player.setCollideWorldBounds(true);
-
         this.player.enableBody(true, this.player.x, this.player.y, true, true);
-        console.log(this.player);
-        this.player.setSize(27, 32, true);
-        this.player.setOffset(0, 16);
+        this.player.setSize(18, 32, true);
+        this.player.setOffset(23, 16)
+        this.player.setDepth(5)
     }
 
     createEnemy(object) {
@@ -217,49 +120,25 @@ class BaseScene extends Phaser.Scene {
                 start: 0,
                 end: 12,
             }),
-            frameRate: 22,
+            frameRate: 15,
             repeat: -1,
         });
         this.enemy.anims.play('enemy-walk');
+        this.scene.scene.enemy.giveZone();
+        this.enemy.setDepth(4);
     }
-
-
-    tryAttack1(pointer) {
-        let bullet = this.bullets.get(this.player.x + 50, this.player.y);
-        if (bullet) {
-            this.attack1(bullet, this.player.direction, this.enemiesEnts)
-        }
-    }
-
-
-    attack1(bullet, direction, target) {
-        bullet.setDepth(3);
-        bullet.body.collideWorldBounds = true;
-        bullet.body.onWorldBounds = true;
-        bullet.enableBody(false, bullet.x, bullet.y, true, true);
-        bullet.direction = direction;
-        this.physics.velocityFromRotation(bullet.direction, 500, bullet.body.velocity);
-        if (target === this.player) {
-            this.physics.add.overlap(this.player, bullet, this.playerHit, null, this);
-        } else {
-            // else check for overlap with all enemy tanks
-            for (let i = 0; i < this.enemies.length; i++) {
-                this.physics.add.overlap(this.enemies[i], bullet, this.attackHitEnemy, null, this)
-            }
-        } 
-    }
-
     createCollision() {
         this.collisionLayer = this.map.getLayer('platforms').tilemapLayer;
         this.collisionLayer.setCollisionBetween(0, 1000);
         this.physics.add.collider(this.player, this.collisionLayer);
         this.physics.add.collider(this.enemies, this.collisionLayer);
     }
+
     setCamera() {
         this.camera = this.cameras.getCamera('')
         this.camera.startFollow(this.player);
         this.camera.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
-        this.camera.setZoom(2.75);
+        this.camera.setZoom(2.5);
     }
 }
 
@@ -275,10 +154,7 @@ class UIScene extends Phaser.Scene {
             fill: '#000000'
         });
         this.score.setText('Score: ' + this.currentScene.score);
-
-        // this.createHealthBar();
         this.createPauseMenu();
-
         this.scene.launch(this);
     }
 
@@ -286,79 +162,75 @@ class UIScene extends Phaser.Scene {
         this.score.setText('Score: ' + score);
     }
 
-    // createHealthBar() {
-    //     this.healthBar = {};
-    //     this.healthBar.outline = this.add.sprite(config.width / 2, config.height - 100, 'hp-outline-big');
-    //     this.healthBar.bar = this.add.sprite(config.width / 2, config.height - 100, 'hp-bar-big');
-    //     this.healthBar.healthMask = this.add.sprite(this.healthBar.bar.x, this.healthBar.bar.y, "hp-bar-big");
-    //     this.healthBar.healthMask.visible = false;
-    //     this.healthBar.bar.mask = new Phaser.Display.Masks.BitmapMask(this, this.healthBar.healthMask);
-    //     this.healthBar.healthMask.offSet = 0;
-    // }
     createPauseMenu() {
         //Create the pauseBtn. Note this will not yet make it display in the scene.
-        this.pauseBtn = new Button(this, config.width - 150, 10, "pauseBtn", function () {
+        this.pauseBtn = new Button(this, config.width - 80, 10, "pauseBtn", function () {
             this.scene.pauseMenu.visible = true;
             this.scene.currentScene.scene.pause();
         });
-
-        /// mvement butons
-
-        this.leftBtn = new Button(this, 20, config.height - 150, "playBtn", function () {
+        
+        this.leftBtn = new Button(this, 50, config.height - 150, "playBtn", function () {
             this.scene.currentScene.player.moveLeft();
         });
         this.rightBtn = new Button(this, 175, config.height - 150, "playBtn", function () {
             this.scene.currentScene.player.moveRight();
         })
-        this.jumpBtn = new Button(this, config.width - 150, config.height - 150, "playBtn", function () {
+        this.jumpBtn = new Button(this, config.width - 125, config.height - 150, "jumpBtn", function () {
             this.scene.currentScene.player.moveJump()
         })
+        this.ability1 = new Button(this, config.width - 250, config.height - 150, "heart", function() {
+            // this.scene.currentScene.player.attackOne.fire();
+            console.log(this.scene.currentScene.player);
+            this.scene.currentScene.player.attackOne();
+            // this.scene.time.addEvent({delay: 500, callback: () => {this.scene.currentScene.player.usingAbility = false;}})
+        })
+        this.ability2 = new Button(this, config.width - 250, config.height - 275, "attack1", function() {
+            console.log(this.scene.currentScene.player);
+            this.scene.currentScene.player.attackOne();
+        })
+        this.ability3 = new Button(this, config.width - 125, config.height - 275, "attack2", function() {
+            console.log("attack2 ability animation")
+            this.scene.currentScene.player.usingAbility = true;
+            this.scene.currentScene.player.playAnimations("player-attack2");
+            this.scene.time.addEvent({delay: 500, callback: () => {this.scene.currentScene.player.usingAbility = false;}})
+        })
 
-        this.pauseBtn.setScale(0.75);
+        this.pauseBtn.setScale(0.55);
         this.leftBtn.setScale(0.75);
         this.rightBtn.setScale(0.75);
         this.jumpBtn.setScale(0.75);
+        this.ability1.setScale(0.75);
+        this.ability2.setScale(0.75);
+        this.ability3.setScale(0.75);
         this.leftBtn.flipX = true;
-        this.jumpBtn.angle = 90;
-        this.jumpBtn.flipX = true;
-        //Add the pauseBtn to the scene. This will now make it display.
         this.add.existing(this.pauseBtn);
         this.add.existing(this.leftBtn);
         this.add.existing(this.rightBtn);
         this.add.existing(this.jumpBtn);
-        //Create the pauseMenu. Note this will not yet make it display in the scene.
+        this.add.existing(this.ability1)
+        this.add.existing(this.ability2)
+        this.add.existing(this.ability3)
 
-        let x = 150;
-        let x2 = x / 2 - 64;
-
-        this.pauseMenu = new Menu(this, 840 / 2 - (x / 2), 75, x, 75, "menuBox", [
-            this.menuPause = new Button(this, 7.5, 6, "homeBtn", function () {
+        this.pauseMenu = new Menu(this, (1280/2)-(900/2), (720/2)-(700/2), 900, 700, "pauseMenu", [
+            this.menuPause = new Button(this, 470-150, 425, "exitBtn", function () {
                 this.scene.currentScene.music.stopAllAudio();
                 this.scene.currentScene.scene.stop();
                 this.scene.scene.start("MenuScene");
-            }).setScale(0.5),
-            this.menuPlay = new Button(this, x - 71.5, 6, "playBtn", function () {
+            }).setScale(0.9),
+            this.menuPlay = new Button(this, 470-150, 175, "contBtn", function () {
                 this.scene.pauseMenu.visible = false;
                 this.scene.currentScene.scene.resume();
-            }).setScale(0.5),
-            this.fullscreen = new Button(this, 71.5 + 150, 6, "full", function () {
+            }).setScale(0.9),
+            this.fullscreen = new Button(this, 470-150, 300, "fullBtn", function () {
                 if (!this.scene.scale.isFullscreen) {
                     this.scene.scale.startFullscreen();
                 } else {
                     this.scene.scale.stopFullscreen();
                 }
-            }).setScale(1)
-
+            }).setScale(0.9)
         ]);
-
-        //Add the pauseMenu to the scene. This will now make it display.
         this.add.existing(this.pauseMenu);
-
-        //Hide the pauseMenu.
         this.pauseMenu.visible = false;
-
-        //If a pointer goes up anywhere on the scene this event will fire.
-        //Its aim is to find the Button that the pointer was pressed down on and clear the applied tint.
         this.input.on("pointerup", function (pointer) {
             pointer.lastBtn.clearTint();
         });
@@ -390,11 +262,10 @@ class MenuScene extends Phaser.Scene {
         }
     }
 
-    //Load in all of the assets required.
     preload() {
-        this.load.image("playBtn", "assets/ui/play.png");
+        this.load.image("playBtn", "assets/ui/play-new.png");
         this.load.image("pauseBtn", "assets/ui/pause.png");
-        this.load.image("settingsBtn", "assets/ui/settings.png");
+        this.load.image("settingsBtn", "assets/ui/settings-new.png");
         this.load.image("soundBtn", "assets/ui/sound.png");
         this.load.image("noSoundBtn", "assets/ui/no-sound.png");
         this.load.image("trophyBtn", "assets/ui/trophy.png");
@@ -404,14 +275,36 @@ class MenuScene extends Phaser.Scene {
         this.load.image("sliderOutline", "assets/ui/slider-outline.png");
         this.load.image("sliderBar", "assets/ui/slider-bar.png");
         this.load.image("sliderDial", "assets/ui/slider-dial.png");
-        this.load.image("full", "assets/ui/full.png");
-
+        this.load.image("full", "assets/ui/full-new.png");
+        this.load.image("fullB", "assets/ui/full-new-2.png");
+        this.load.image("heart", "assets/ui/heart.png")
+        this.load.image("attack1", "assets/ui/attack1.png");
+        this.load.image("attack2", "assets/ui/attack2.png");
+        this.load.image("pauseMenu", "assets/ui/pauseMenu.png")
+        this.load.image("contBtn", "assets/ui/contBtn.png")
+        this.load.image("exitBtn", "assets/ui/exitBtn.png")
+        this.load.image("fullBtn", "assets/ui/fullBtn.png")
+        this.load.image("jumpBtn", "assets/ui/jump.png")
         this.load.audio("menuMusic", "assets/music/background.mp3");
+
+    
+        this.load.image("menuFront", "assets/ui/menu-front.png");
+        this.load.image("menu-1", "assets/ui/menu-1.png");
+        this.load.image("menu-2", "assets/ui/menu-2.png");
+        this.load.image("menu-3", "assets/ui/menu-3.png");
+        this.load.image("menu-4", "assets/ui/menu-4.png");
+        this.load.image("menu-5", "assets/ui/menu-5.png");
     }
 
     create() {
-        //Create the mainMenu. Note this will not yet make it display in the scene.
-        this.mainMenu = new Menu(this, 0, 0, 1280, 720, "menuBack", [
+        this.add.image(640,360,'menu-5');
+        this.stars = this.add.image(640,200,'menu-4');
+        this.cloudssss = this.add.image(640,360,'menu-3');
+        this.moon = this.add.image(640,360,'menu-2');
+        this.cloudsss = this.add.image(640,360,'menu-1');
+        this.add.image(640,360,'menuFront');
+
+        this.mainMenu = new Menu(this, 0, 0, 1280, 720, "menuFront", [
             new Button(this, 50, 165, "playBtn", function () {
                 this.scene.music.stopAllAudio();
                 this.scene.scene.start("MainScene", {
@@ -425,13 +318,13 @@ class MenuScene extends Phaser.Scene {
             new Button(this, 50, 445, "trophyBtn", function () {
                 console.log("Achievements not yet set up.");
             }, false),
-            this.fullscreen = new Button(this, 35, 20, "full", function () {
+            this.fullscreen = new Button(this, 5, 5, "full", function () {
                 if (!this.scene.scale.isFullscreen) {
                     this.scene.scale.startFullscreen();
                 } else {
                     this.scene.scale.stopFullscreen();
                 }
-            }).setScale(0.5)
+            }).setScale(0.75)
         ]);
 
         //Add the mainMenu to the scene. This will now make it display.
@@ -450,7 +343,7 @@ class MenuScene extends Phaser.Scene {
             new Slider(this, 280, 200, 250, 30, "sliderOutline", "sliderDial", function () {
                 this.scene.music.setVolume(this.percent / 100);
             }),
-            new MaskSlider(this, 280, 300, 250, 30, "sliderOutline", "sliderBar", "sliderDial", function () {
+            new Slider(this, 280, 300, 250, 30, "sliderOutline", "sliderDial", function () {
                 this.scene.sfx.setVolume(this.percent / 100);
             }),
 
@@ -476,5 +369,19 @@ class MenuScene extends Phaser.Scene {
         });
         this.music.playAudio('menuMusic')
         this.sfx = new AudioManager(this);
+    }
+
+    update(){
+        this.moon.y+=(Math.sin(this.scene.systems.time.now/500)/10)
+        console.log()
+        this.stars.x+=(Math.sin(this.scene.systems.time.now/250)/250)
+        this.stars.y+=(Math.sin(this.scene.systems.time.now/250)/250)
+        this.stars.scale+= (Math.sin(this.scene.systems.time.now/2500)/2500)
+        this.cloudssss.scale = 1.25
+        this.cloudsss.scale = 1.25
+        this.cloudssss.x+=(Math.sin(this.scene.systems.time.now/-5000)/10)
+        this.cloudsss.x+=(Math.sin(this.scene.systems.time.now/5000)/10)
+
+        
     }
 }

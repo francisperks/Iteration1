@@ -144,8 +144,8 @@ class Slider extends Phaser.GameObjects.Container {
         dial.setScale(outline.scaleX, outline.scaleY);
 
         //Find the minimum and maximum points on the bar. These are used later to lock the dial between these two points.
-        dial.min = x - dial.displayWidth/2 - 10;
-        dial.max = w - dial.displayWidth/2
+        dial.min = dial.displayWidth/2 - 10;
+        dial.max = w - dial.displayWidth/2;
 
         //Position the dial at the far right of the bar.
         dial.setPosition(w - dial.displayWidth/2, dial.y - dial.displayHeight/8);
@@ -158,10 +158,10 @@ class Slider extends Phaser.GameObjects.Container {
         //pointer is the mouse/finger pointer used. dragX is the location the mouse has dragged the dial to.
         //The context (this) is the dial.
         dial.on("drag", function(pointer, dragX) {
-            if(dragX > this.max){
+            if(dragX > this.max+5){
                 this.x = this.max;
                 this.parentContainer.percent = 100;
-            } else if(dragX < this.min){
+            } else if(dragX < this.min - 2){
                 this.x = this.min;
                 this.parentContainer.percent = 0;
             } else {
@@ -170,7 +170,7 @@ class Slider extends Phaser.GameObjects.Container {
                 //100 * (x - min / x - max); will give us the position of the dial on the Slider as a percentage.
                 //We also need to  -this.parentContainer.x from each side to account for the x position of the container in the world.
                 //Lastly, truncate to make it a whole number.
-                this.parentContainer.percent = Math.trunc(100 * (this.x - this.min - this.parentContainer.x)/(this.max - this.min - this.parentContainer.x));
+                this.parentContainer.percent = Math.trunc(100 * (this.x - this.min)/(this.max - this.min));
 
                 //If for whatever reason the value goes above or below 100 or 0, set them to be that.
                 if(this.parentContainer.percent <= 0) {
