@@ -3,7 +3,8 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         super(scene, x, y, texture, frame);
         this.maxSpeed = 120;
         this.usingAbility = false;
-
+        this.damageCount = 0;
+        this.damageMax = 10;
         this.body = new Phaser.Physics.Arcade.Body(scene.physics.world, this);
 
         scene.physics.add.existing(this);
@@ -16,7 +17,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.createAnimations("player-attack1", "player-attack1", 0, 5, 12, 0);
         this.createAnimations("player-attack2", "player-attack2", 0, 5, 12, 0);
         this.createAnimations("player-attack3", "player-death", 0, 5, 12, 0);
-        this.createAnimations("slash", "slash", 0, 3, 12, 0);
+        this.createAnimations("slash", "slash", 0, 5, 15, 0);
 
         /*this.attackOne = new Ability(scene, this, 10, function () {
             if (this.sprite !== null) {
@@ -42,6 +43,26 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
+    damage() {
+        this.scene.cameras.main.shake(200, 0.005);
+        this.damageCount++;
+    }
+
+    isDead() {
+        // check whether damagecount equals or exceeds damagemax
+        if (this.damageCount >= this.damageMax) {
+            return true
+        }
+    }
+
+
+    handleAttac(enemy) {
+        if (this.scene.physics.overlap(enemy, this.attack)) {
+            enemy.damage()
+        }
+    }
+
+
     update() {
         if (!this.usingAbility) {
             if (!this.body.onFloor() && this.body.velocity.y > 0) {
@@ -55,6 +76,8 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 this.playAnimations("player-walk")
             }
         }
+        this.scene.enemies.children.entries.forEach(enemy => this.handleAttac(enemy))
+
     }
 
     createAnimations(key, image, startFrame, endFrame, frameRate, repeat) {
@@ -76,16 +99,20 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     attackOne() {
         this.usingAbility = true;
         this.playAnimations("player-attack1");
-        
-        var attack = this.scene.physics.add.sprite(this.x + 20, this.y, "slash", 0);
+
+        var attack = this.scene.physics.add.sprite(this.x + 20, this.y + 5, "slash", 0);
+        attack.setVelocityX(30)
+        attack.setSize(12, 24)
         attack.body.setAllowGravity(false);
         attack.anims.play("slash", true);
-        attack.on('animationcomplete', function(){
+        attack.on('animationcomplete', function () {
             this.destroy();
         });
 
-
-        this.scene.time.addEvent({delay: 500, callback: () => {this.usingAbility = false;}})
+        this.attack = attack
+        this.scene.time.addEvent({ delay: 500, callback: () => { this.usingAbility = false; } })
+        // console.log("this is attack" + attack)
+        // console.log("this is enemy" + this.scene.enemy)
     }
 }
 
@@ -109,22 +136,24 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, frame = 0) {
         super(scene, x, y, texture, frame);
         this.speedMult = 1;
-        this.xCoord = -15;
+        this.xCoord = -25;
+        this.damageCount = 0;
+        this.damageMax = 5;
 
         this.body = new Phaser.Physics.Arcade.Body(scene.physics.world, this);
-        this.setSize(10, 24).setOffset(19, 16).setScale(1)
+        this.setSize(10, 24).setOffset(19, 16).setScale(1.25)
         scene.physics.add.existing(this);
         scene.add.existing(this);
-        
+
         this.zones = [];
-        this.scene.anims.create({
+        this.die = this.scene.anims.create({
             key: "enemyAttack",
             frames: this.scene.anims.generateFrameNumbers("enemy_attack", {
                 start: 0,
                 end: 17,
             }),
             frameRate: 12,
-            repeat: 0,
+            repeat: -1,
         });
 
         this.scene.anims.create({
@@ -136,42 +165,86 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
             frameRate: 15,
             repeat: -1,
         });
-        
+
+        this.scene.anims.create({
+            key: 'enemy-die',
+            frames: this.scene.anims.generateFrameNumbers('enemy-die', {
+                start: 0,
+                end: 14,
+            }),
+            frameRate: 15,
+            repeat: -1,
+        });
+
     }
+
+    damage() {
+        this.damageCount++;
+
+        if (this.isDead()) {
+            this.setVelocityX(0)
+            this.scene.score++;
+            console.log(this.scene.score)
+            this.anims.play("enemy-die",true)
+
+
+            // console.log(this)
+            this.scene.time.addEvent({delay: 900, callback: () => {this.destroy()}})
+        
+            // this.anims.on('animationcomplete', function () {
+            //     this.destroy();
+            // });
+        }
+    }
+
+    isDead() {
+        // check whether damagecount equals or exceeds damagemax
+        if (this.damageCount >= this.damageMax) {
+            return true
+        }
+    }
+
     move() {
         var xOne = 306;
         var xTwo = 712;
 
-        if (this.x > xTwo) {
-            this.speedMult = -1;
-            this.flipX = true;
-            this.xCoord = 30;
-        } else if (this.x < xOne) {
-            this.speedMult = 1;
-            this.flipX = false;
-            this.xCoord = -15;
+        if(!this.isDead()){
+            if (this.x > xTwo) {
+                this.speedMult = -1;
+                this.flipX = true;
+                this.xCoord = 30;
+            } else if (this.x < xOne) {
+                this.speedMult = 1;
+                this.flipX = false;
+                this.xCoord = -25;
+            }
+            this.setVelocityX(30 * this.speedMult);
+        }else if(this.isDead()){
+            this.setVelocityX(0)
         }
-        this.setVelocityX(30 * this.speedMult);
+
+        
 
         this.graphics.clear();
-        for(var i = 0; i < this.zones.length; i++){
-            var tempZone = this.zones[i]; 
-                tempZone.x = this.x -this.xCoord;
-                tempZone.y = this.y - 12.5;
-            if(tempZone.contains(this.scene.player.x, this.scene.player.y)){
+        for (var i = 0; i < this.zones.length; i++) {
+            var tempZone = this.zones[i];
+            tempZone.x = this.x - this.xCoord;
+            tempZone.y = this.y - 5;
+            if (tempZone.contains(this.scene.player.x, this.scene.player.y)) {
                 this.seePlayer();
                 this.attack();
-               this.graphics.fillStyle(0x00000aa, 1)
+                // this.graphics.fillStyle(0x00000aa, 1)
             }
-            this.graphics.fillRectShape(tempZone);
+            // this.graphics.fillRectShape(tempZone);
         }
     }
 
-    seePlayer(){
+    seePlayer() {
+        // this.anims.play("enemyAttack")
         this.setVelocity(0)
     }
 
-    giveZone(){
+    giveZone() {
         this.graphics = this.scene.add.graphics({ lineStyle: { width: 2, color: 0x0000aa }, fillStyle: { color: 0xaa0000 } });
         this.zone = new Phaser.Geom.Rectangle(this.x, this.y, 5, this.body.height)
         this.graphics.fillRectShape(this.zone)
@@ -181,10 +254,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     update() {
         this.move();
-        // if(this.body.velocity.x > 0 || this.body.velocity.x < 0){
-        //     this.anims.play('enemy-walk')
-        // }
-
     }
 
     attack() {

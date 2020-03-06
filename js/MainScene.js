@@ -1,4 +1,4 @@
-function LERP(a, b, f) { return a + f * (b - a) }
+// function LERP(a, b, f) { return a + f * (b - a) }
 class BaseScene extends Phaser.Scene {
     constructor() {
         super("MainScene");
@@ -39,9 +39,12 @@ class BaseScene extends Phaser.Scene {
         this.load.spritesheet('player-jump', 'assets/player/player_jump-new.png', { frameWidth: 64, frameHeight: 48 });
         this.load.spritesheet('enemy-idle', 'assets/enemy/enemy_idle-new.png', { frameWidth: 48, frameHeight: 40 });
         this.load.spritesheet('enemy-walk', 'assets/enemy/enemy_walk-new.png', { frameWidth: 48, frameHeight: 40 });
-        this.load.spritesheet('enemy_attack', 'assets/enemy/enemy_attack-new.png', { frameWidth: 48, frameHeight: 40 });
-        this.load.spritesheet('slash', 'assets/slash.png', { frameWidth: 110, frameHeight: 129 });
+        
+        this.load.spritesheet('enemy-die', 'assets/enemy/enemy-die.png', { frameWidth: 48, frameHeight: 40 });
+        this.load.spritesheet('enemy_attack', 'assets/enemy/enemy_attack.png', { frameWidth: 48, frameHeight: 40 });
+        this.load.spritesheet('slash', 'assets/slash-thick.png', { frameWidth: 30, frameHeight: 48});
         this.load.image('bullet', 'assets/bullet.png');
+
 
         this.load.image('tileset', 'assets/tileset_Padded.png');
         this.load.image('clouds', 'assets/clouds.png');
@@ -98,7 +101,6 @@ class BaseScene extends Phaser.Scene {
         else if (this.cursors.right.isDown || this.uiScene.rightBtn.isDown) {this.player.moveRight();}
         else {this.player.setVelocityX(0);}
         if (Phaser.Input.Keyboard.JustDown(this.cursors.space) && this.player.body.onFloor()) {this.player.moveJump();}
-
         // if (this.player.flipX) { this.player.setOffset(0, 0); } else { this.player.setOffset(0, 0); }
     }
 
@@ -175,20 +177,20 @@ class UIScene extends Phaser.Scene {
         this.rightBtn = new Button(this, 175, config.height - 150, "playBtn", function () {
             this.scene.currentScene.player.moveRight();
         })
-        this.jumpBtn = new Button(this, config.width - 125, config.height - 150, "jumpBtn", function () {
+        this.jumpBtn = new Button(this, config.width - 175, config.height - 150, "jumpBtn", function () {
             this.scene.currentScene.player.moveJump()
         })
-        this.ability1 = new Button(this, config.width - 250, config.height - 150, "heart", function() {
+        this.ability1 = new Button(this, config.width - 550, config.height - 150, "heart", function() {
             // this.scene.currentScene.player.attackOne.fire();
-            console.log(this.scene.currentScene.player);
+            // console.log(this.scene.currentScene.player);
             this.scene.currentScene.player.attackOne();
             // this.scene.time.addEvent({delay: 500, callback: () => {this.scene.currentScene.player.usingAbility = false;}})
         })
-        this.ability2 = new Button(this, config.width - 250, config.height - 275, "attack1", function() {
-            console.log(this.scene.currentScene.player);
+        this.ability2 = new Button(this, config.width - 425, config.height - 150, "attack1", function() {
+            // console.log(this.scene.currentScene.player);
             this.scene.currentScene.player.attackOne();
         })
-        this.ability3 = new Button(this, config.width - 125, config.height - 275, "attack2", function() {
+        this.ability3 = new Button(this, config.width - 300, config.height - 150, "attack2", function() {
             console.log("attack2 ability animation")
             this.scene.currentScene.player.usingAbility = true;
             this.scene.currentScene.player.playAnimations("player-attack2");
@@ -196,12 +198,12 @@ class UIScene extends Phaser.Scene {
         })
 
         this.pauseBtn.setScale(0.55);
-        this.leftBtn.setScale(0.75);
-        this.rightBtn.setScale(0.75);
-        this.jumpBtn.setScale(0.75);
-        this.ability1.setScale(0.75);
-        this.ability2.setScale(0.75);
-        this.ability3.setScale(0.75);
+        this.leftBtn.setScale(1);
+        this.rightBtn.setScale(1);
+        this.jumpBtn.setScale(1);
+        this.ability1.setScale(1);
+        this.ability2.setScale(1);
+        this.ability3.setScale(1);
         this.leftBtn.flipX = true;
         this.add.existing(this.pauseBtn);
         this.add.existing(this.leftBtn);
@@ -263,9 +265,9 @@ class MenuScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image("playBtn", "assets/ui/play-new.png");
+        this.load.image("playBtn", "assets/ui/play-new-1.png");
         this.load.image("pauseBtn", "assets/ui/pause.png");
-        this.load.image("settingsBtn", "assets/ui/settings-new.png");
+        this.load.image("settingsBtn", "assets/ui/settings-new-1.png");
         this.load.image("soundBtn", "assets/ui/sound.png");
         this.load.image("noSoundBtn", "assets/ui/no-sound.png");
         this.load.image("trophyBtn", "assets/ui/trophy.png");
@@ -275,7 +277,7 @@ class MenuScene extends Phaser.Scene {
         this.load.image("sliderOutline", "assets/ui/slider-outline.png");
         this.load.image("sliderBar", "assets/ui/slider-bar.png");
         this.load.image("sliderDial", "assets/ui/slider-dial.png");
-        this.load.image("full", "assets/ui/full-new.png");
+        this.load.image("full", "assets/ui/full-new-1.png");
         this.load.image("fullB", "assets/ui/full-new-2.png");
         this.load.image("heart", "assets/ui/heart.png")
         this.load.image("attack1", "assets/ui/attack1.png");
@@ -285,7 +287,7 @@ class MenuScene extends Phaser.Scene {
         this.load.image("exitBtn", "assets/ui/exitBtn.png")
         this.load.image("fullBtn", "assets/ui/fullBtn.png")
         this.load.image("jumpBtn", "assets/ui/jump.png")
-        this.load.audio("menuMusic", "assets/music/background.mp3");
+        this.load.audio("menuMusic", "assets/music/background-1.mp3");
 
     
         this.load.image("menuFront", "assets/ui/menu-front.png");
