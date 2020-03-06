@@ -97,7 +97,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         super(scene, x, y, texture, frame);
 
         this.body = new Phaser.Physics.Arcade.Body(scene.physics.world, this);
-        this.setSize(18, 24).setOffset(-2, 8).setScale(1.5).setDepth(0)
+        this.setSize(10, 24).setOffset(19, 16).setScale(1)
         scene.physics.add.existing(this);
         scene.add.existing(this);
         
@@ -110,6 +110,16 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
             }),
             frameRate: 12,
             repeat: 0,
+        });
+
+        this.scene.anims.create({
+            key: 'enemy-walk',
+            frames: this.scene.anims.generateFrameNumbers('enemy-walk', {
+                start: 0,
+                end: 12,
+            }),
+            frameRate: 15,
+            repeat: -1,
         });
         
     }
@@ -140,14 +150,13 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 this.seePlayer();
                 this.attack();
                 // this.graphics.fillStyle(0x00000aa, 1)
-            } 
+            }
             // this.graphics.fillRectShape(tempZone);
         }
     }
 
     seePlayer(){
         this.setVelocity(0)
-
     }
 
     giveZone(){
@@ -160,6 +169,10 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     update() {
         this.move();
+        // if(this.body.velocity.x > 0 || this.body.velocity.x < 0){
+        //     this.anims.play('enemy-walk')
+        // }
+
     }
 
     attack() {
