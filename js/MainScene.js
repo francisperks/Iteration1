@@ -1,6 +1,5 @@
 function LERP(a, b, f) { return a + f * (b - a) }
 class BaseScene extends Phaser.Scene {
-    
     constructor() {
         super("MainScene");
 
@@ -101,7 +100,6 @@ class BaseScene extends Phaser.Scene {
         if (Phaser.Input.Keyboard.JustDown(this.cursors.space) && this.player.body.onFloor()) {this.player.moveJump();}
 
         // if (this.player.flipX) { this.player.setOffset(0, 0); } else { this.player.setOffset(0, 0); }
-
     }
 
     createPlayer(object) {
@@ -129,7 +127,6 @@ class BaseScene extends Phaser.Scene {
         this.scene.scene.enemy.giveZone();
         this.enemy.setDepth(4);
     }
-    
     createCollision() {
         this.collisionLayer = this.map.getLayer('platforms').tilemapLayer;
         this.collisionLayer.setCollisionBetween(0, 1000);
@@ -300,7 +297,6 @@ class MenuScene extends Phaser.Scene {
     }
 
     create() {
-        
         this.add.image(640,360,'menu-5');
         this.stars = this.add.image(640,200,'menu-4');
         this.cloudssss = this.add.image(640,360,'menu-3');

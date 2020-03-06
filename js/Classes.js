@@ -138,7 +138,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         });
         
     }
-
     move() {
         var xOne = 306;
         var xTwo = 712;
