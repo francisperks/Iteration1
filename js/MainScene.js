@@ -102,6 +102,12 @@ class BaseScene extends Phaser.Scene {
         else {this.player.setVelocityX(0);}
         if (Phaser.Input.Keyboard.JustDown(this.cursors.space) && this.player.body.onFloor()) {this.player.moveJump();}
         // if (this.player.flipX) { this.player.setOffset(0, 0); } else { this.player.setOffset(0, 0); }
+        // console.log(this.player.body.x)
+        if(this.player.body.y > 720){
+            this.player.body.y = 50;
+            // console.log("Player Velocity = " + Math.floor(this.scene.scene.player.body.velocity.y))
+            this.player.body.x = 144;
+        }
     }
 
     createPlayer(object) {
@@ -109,7 +115,7 @@ class BaseScene extends Phaser.Scene {
         this.player.enableBody(true, this.player.x, this.player.y, true, true);
         this.player.setSize(18, 32, true);
         this.player.setOffset(23, 16)
-        this.player.setDepth(5)
+        this.player.setDepth(5);
     }
 
     createEnemy(object) {
@@ -183,7 +189,7 @@ class UIScene extends Phaser.Scene {
         this.ability1 = new Button(this, config.width - 550, config.height - 150, "heart", function() {
             // this.scene.currentScene.player.attackOne.fire();
             // console.log(this.scene.currentScene.player);
-            this.scene.currentScene.player.attackOne();
+            this.scene.currentScene.player.attackTwo();
             // this.scene.time.addEvent({delay: 500, callback: () => {this.scene.currentScene.player.usingAbility = false;}})
         })
         this.ability2 = new Button(this, config.width - 425, config.height - 150, "attack1", function() {

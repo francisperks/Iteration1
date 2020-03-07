@@ -64,6 +64,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
 
     update() {
+        
         if (!this.usingAbility) {
             if (!this.body.onFloor() && this.body.velocity.y > 0) {
                 this.playAnimations("player-fall")
@@ -113,6 +114,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.scene.time.addEvent({ delay: 500, callback: () => { this.usingAbility = false; } })
         // console.log("this is attack" + attack)
         // console.log("this is enemy" + this.scene.enemy)
+    }
+
+    attackTwo(){
+        this.setVelocityY(-500)
+        console.log("help")
     }
 }
 
