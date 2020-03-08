@@ -37,6 +37,14 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.setVelocityX(-this.maxSpeed);
     }
 
+    checkOrientation(){
+        if(this.flipX){
+            return true;
+        }else if(!this.flipX){
+            return false;
+        }
+    }
+
     moveJump() {
         if (this.body.onFloor()) {
             this.setVelocityY(-170)
@@ -57,9 +65,15 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
 
     handleAttac(enemy) {
-        if (this.scene.physics.overlap(enemy, this.attack)) {
-            enemy.damage()
-        }
+        if (this.scene.physics.overlap(enemy, this.attack, function(object1, object2){
+            console.log(object2)
+            object2.disableBody(false, true)
+            object2.visible = true;
+            if(!enemy.isDead()){
+                enemy.damage()
+            }
+        }));
+        
     }
 
 
@@ -72,8 +86,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 this.playAnimations("player-jump")
             } else if (this.body.velocity.x === 0 && this.body.onFloor()) {
                 this.playAnimations("player-idle")
-            }
-            else if (this.body.velocity.x > 0 || this.body.velocity.x < 0) {
+            } else if (this.body.velocity.x > 0 || this.body.velocity.x < 0) {
                 this.playAnimations("player-walk")
             }
         }
@@ -100,9 +113,50 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     attackOne() {
         this.usingAbility = true;
         this.playAnimations("player-attack1");
-
         var attack = this.scene.physics.add.sprite(this.x + 20, this.y + 5, "slash", 0);
-        attack.setVelocityX(30)
+        attack.velocity = 30
+        if(this.checkOrientation() == false){
+            attack.x = this.x +20;
+            attack.flipX = false;
+            attack.setVelocityX(attack.velocity)
+        }else  if(this.checkOrientation() == true){
+            attack.x = this.x - 20;
+            attack.flipX = true;
+            attack.setVelocityX(-attack.velocity)
+        }
+        attack.setSize(12, 24)
+        attack.setDepth(10)
+        attack.body.setAllowGravity(false);
+        attack.anims.play("slash", true);
+        attack.on('animationcomplete', function () {
+            this.destroy();
+        });
+
+
+        this.attack = attack
+        
+        this.scene.time.addEvent({ delay: 500, callback: () => { this.usingAbility = false; } })
+        // console.log("this is attack" + attack)
+        // console.log("this is enemy" + this.scene.enemy)
+    }
+
+    attackTwo(){
+        this.usingAbility = true;
+        this.playAnimations("player-attack1");
+        var attack = this.scene.physics.add.sprite(this.x + 20, this.y + 5, "slash", 0);
+        var r = 0
+        
+        if(this.checkOrientation() == false){
+            attack.x = this.x +20
+            r = 40     
+            attack.flipX = false;
+            attack.setVelocityX(30)
+        }else  if(this.checkOrientation() == true){
+            attack.x = this.x - 20;
+            r = 40
+            attack.flipX = true;
+            attack.setVelocityX(-30)
+        }
         attack.setSize(12, 24)
         attack.body.setAllowGravity(false);
         attack.anims.play("slash", true);
@@ -116,7 +170,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         // console.log("this is enemy" + this.scene.enemy)
     }
 
-    attackTwo(){
+    abilityHeal(){
         this.setVelocityY(-500)
         console.log("help")
     }
@@ -152,6 +206,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         scene.add.existing(this);
 
         this.zones = [];
+        
         this.die = this.scene.anims.create({
             key: "enemyAttack",
             frames: this.scene.anims.generateFrameNumbers("enemy_attack", {
@@ -169,7 +224,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 end: 12,
             }),
             frameRate: 15,
-            repeat: -1,
+            repeat: 0,
         });
 
         this.scene.anims.create({
@@ -179,32 +234,35 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 end: 14,
             }),
             frameRate: 15,
-            repeat: -1,
+            repeat: 0,
+        });
+
+        this.scene.anims.create({
+            key: 'enemy-hit',
+            frames: this.scene.anims.generateFrameNumbers('enemy-hit', {
+                start: 0,
+                end: 7,
+            }),
+            frameRate: 15,
+            repeat: 0,
         });
 
     }
 
     damage() {
         this.damageCount++;
-
+        this.anims.play("enemy-hit",true)
         if (this.isDead()) {
             this.setVelocityX(0)
             this.scene.score++;
-            console.log(this.scene.score)
             this.anims.play("enemy-die",true)
-
-
-            // console.log(this)
-            this.scene.time.addEvent({delay: 900, callback: () => {this.destroy()}})
-        
-            // this.anims.on('animationcomplete', function () {
-            //     this.destroy();
-            // });
+            this.on('animationcomplete', function () {
+                this.destroy();
+            });
         }
     }
 
     isDead() {
-        // check whether damagecount equals or exceeds damagemax
         if (this.damageCount >= this.damageMax) {
             return true
         }
@@ -213,7 +271,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     move() {
         var xOne = 306;
         var xTwo = 712;
-
         if(!this.isDead()){
             if (this.x > xTwo) {
                 this.speedMult = -1;
@@ -225,8 +282,10 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 this.xCoord = -25;
             }
             this.setVelocityX(30 * this.speedMult);
+            this.isMoving = true;
         }else if(this.isDead()){
             this.setVelocityX(0)
+            this.isMoving = false;
         }
 
         
@@ -246,7 +305,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     seePlayer() {
-        // this.anims.play("enemyAttack")
         this.setVelocity(0)
     }
 
@@ -260,6 +318,11 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     update() {
         this.move();
+        if(this.isMoving){
+        }
+        if(this.isBeingDamaged){
+            this.anims.play("enemy-hit")
+        }
     }
 
     attack() {

@@ -39,9 +39,9 @@ class BaseScene extends Phaser.Scene {
         this.load.spritesheet('player-jump', 'assets/player/player_jump-new.png', { frameWidth: 64, frameHeight: 48 });
         this.load.spritesheet('enemy-idle', 'assets/enemy/enemy_idle-new.png', { frameWidth: 48, frameHeight: 40 });
         this.load.spritesheet('enemy-walk', 'assets/enemy/enemy_walk-new.png', { frameWidth: 48, frameHeight: 40 });
-        
         this.load.spritesheet('enemy-die', 'assets/enemy/enemy-die.png', { frameWidth: 48, frameHeight: 40 });
         this.load.spritesheet('enemy_attack', 'assets/enemy/enemy_attack.png', { frameWidth: 48, frameHeight: 40 });
+        this.load.spritesheet('enemy-hit', 'assets/enemy/enemy_hit.png', { frameWidth: 48, frameHeight: 40 });
         this.load.spritesheet('slash', 'assets/slash-thick.png', { frameWidth: 30, frameHeight: 48});
         this.load.image('bullet', 'assets/bullet.png');
 
@@ -122,16 +122,6 @@ class BaseScene extends Phaser.Scene {
         this.enemy = new Enemy(this, object.x, object.y, 'enemy-idle');
         this.enemy.enableBody(true, this.enemy.x, this.enemy.y, true, true);
         this.enemies.add(this.enemy);
-        this.anims.create({
-            key: 'enemy-walk',
-            frames: this.anims.generateFrameNumbers('enemy-walk', {
-                start: 0,
-                end: 12,
-            }),
-            frameRate: 15,
-            repeat: -1,
-        });
-        this.enemy.anims.play('enemy-walk');
         this.scene.scene.enemy.giveZone();
         this.enemy.setDepth(4);
     }
@@ -188,19 +178,19 @@ class UIScene extends Phaser.Scene {
         })
         this.ability1 = new Button(this, config.width - 550, config.height - 150, "heart", function() {
             // this.scene.currentScene.player.attackOne.fire();
-            // console.log(this.scene.currentScene.player);
-            this.scene.currentScene.player.attackTwo();
-            // this.scene.time.addEvent({delay: 500, callback: () => {this.scene.currentScene.player.usingAbility = false;}})
+            if(!this.scene.currentScene.player.usingAbility){
+                this.scene.currentScene.player.abilityHeal();
+            }
         })
         this.ability2 = new Button(this, config.width - 425, config.height - 150, "attack1", function() {
-            // console.log(this.scene.currentScene.player);
-            this.scene.currentScene.player.attackOne();
+            if(!this.scene.currentScene.player.usingAbility){
+                this.scene.currentScene.player.attackOne();
+            }
         })
         this.ability3 = new Button(this, config.width - 300, config.height - 150, "attack2", function() {
-            console.log("attack2 ability animation")
-            this.scene.currentScene.player.usingAbility = true;
-            this.scene.currentScene.player.playAnimations("player-attack2");
-            this.scene.time.addEvent({delay: 500, callback: () => {this.scene.currentScene.player.usingAbility = false;}})
+            if(!this.scene.currentScene.player.usingAbility){
+                this.scene.currentScene.player.attackTwo();
+            }
         })
 
         this.pauseBtn.setScale(0.55);
@@ -372,6 +362,7 @@ class MenuScene extends Phaser.Scene {
         });
 
         this.music = new AudioManager(this);
+        this.music.setVolume(0.2)
         this.music.addAudio('menuMusic', {
             loop: true
         });
