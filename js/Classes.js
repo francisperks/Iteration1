@@ -333,8 +333,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
             //     console.log("Enemy can see player")
             // }
 
-
-
             // if(this.seePlayer){
             //     this.setVelocityX(0)
             //     if(this.beingAttacked){
