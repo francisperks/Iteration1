@@ -284,12 +284,10 @@ class MenuScene extends Phaser.Scene {
         this.load.image("fullBtn", "assets/ui/fullBtn.png")
         this.load.image("jumpBtn", "assets/ui/jump.png")
         this.load.audio("menuMusic", "assets/music/background-1.mp3");
-
-    
-        this.load.image("menuFront", "assets/ui/menu-front.png");
-        this.load.image("menu-1", "assets/ui/menu-1.png");
-        this.load.image("menu-2", "assets/ui/menu-2.png");
-        this.load.image("menu-3", "assets/ui/menu-3.png");
+        this.load.image("menuFront", "assets/ui/menu-front.png")
+        this.load.image("menu-1", "assets/ui/menu-1.png")
+        this.load.image("menu-2", "assets/ui/menu-2.png")
+        this.load.image("menu-3", "assets/ui/menu-3.png")
         this.load.image("menu-4", "assets/ui/menu-4.png");
         this.load.image("menu-5", "assets/ui/menu-5.png");
     }
@@ -382,5 +380,40 @@ class MenuScene extends Phaser.Scene {
         this.cloudsss.x+=(Math.sin(this.scene.systems.time.now/5000)/10)
 
         
+    }
+}
+
+class Level1 extends BaseScene {
+    constructor(){
+        super('Level1');
+    }
+    preload() {
+        super.preload();
+    }
+
+    create() {
+        super.create();
+    }
+
+    update() {
+        super.update();
+    }
+}
+
+class Level2 extends BaseScene {
+    constructor(){
+        super('Level2');
+    }
+
+    preload(){
+
+    }
+
+    create(){
+
+    }
+
+    update(){
+
     }
 }
