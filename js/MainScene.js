@@ -121,7 +121,7 @@ class BaseScene extends Phaser.Scene {
     }
     createCollision() {
         this.collisionLayer = this.map.getLayer('platforms').tilemapLayer;
-        this.collisionLayer.setCollisionBetween(0, 1000);
+        this.collisionLayer.setCollisionBetween(0, 10000);
         this.physics.add.collider(this.player, this.collisionLayer);
         this.physics.add.collider(this.enemies, this.collisionLayer);
     }
@@ -142,10 +142,9 @@ class UIScene extends Phaser.Scene {
     createUIScene(sceneKey) {
         this.currentScene = this.scene.get(sceneKey);
         this.score = this.add.text(10, 10, 'Score: 0', {
-            font: '18px Arial',
+            font: '20px Arial',
             fill: '#000000'
         });
-        this.score.setText('Score: ' + this.currentScene.player.score);
         this.createPauseMenu();
         this.scene.launch(this);
     }
