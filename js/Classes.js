@@ -5,6 +5,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.usingAbility = false;
         this.damageCount = 0;
         this.damageMax = 10;
+        this.score = 0;
         this.body = new Phaser.Physics.Arcade.Body(scene.physics.world, this);
 
         scene.physics.add.existing(this);
@@ -80,6 +81,8 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
 
     update() {
+        
+        // this.scene.score.setText('Score: ' + this.score);
         
         if (!this.usingAbility) {
             if (!this.body.onFloor() && this.body.velocity.y > 0) {
@@ -202,6 +205,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.damageCount = 0;
         this.damageMax = 5;
         this.body = new Phaser.Physics.Arcade.Body(scene.physics.world, this);
+        this.isBeingDamaged = false;
         this.setSize(10, 24).setOffset(19, 16).setScale(1.25)
         scene.physics.add.existing(this);
         scene.add.existing(this);
@@ -262,9 +266,11 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     damage() {
         this.damageCount++;
-        // this.anims.play("enemy-hit")
-
-        
+        this.anims.play("enemy-hit", this)  
+        this.isBeingDamaged = true;
+        this.on("animationcomplete", function (){
+            this.isBeingDamaged = false
+        }, this)
     }
 
     isDead() {
@@ -299,11 +305,14 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 this.seePlayer =  true;
                 this.setVelocityX(0)
                 this.anims.play("enemyAttack",true)
-                this.graphics.fillStyle(0x00000aa, 1)
+                this.on("animationcomplete", function(){
+                    console.log("help me")
+                }, this)
+                // this.graphics.fillStyle(0x00000aa, 1)
             }else{
                 this.seePlayer = false;
             }
-            this.graphics.fillRectShape(tempZone);
+            // this.graphics.fillRectShape(tempZone);
         }
     }
 
@@ -345,21 +354,22 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
             //     }
             // }
 
-
-            if(!this.seePlayer || !this.beingAttacked){
+            if(!this.seePlayer || !this.isBeingDamaged){
                 this.move();
                 if (this.body.velocity.x > 0 || this.body.velocity.x < 0) {
                     this.anims.play("enemy-walk", true)
                 }
-            }
+            } else if (this.seePlayer) {
 
+            }
             
-        }else if (this.isDead()) {
+        }   else if (this.isDead()) {
             this.setVelocityX(0)
-            this.scene.score++;
             this.anims.play("enemy-die", true)
             this.on('animationcomplete', function () {
                 this.destroy();
+                console.log(this.scene.player)
+                this.scene.player.score++;
             });
         }
     }

@@ -67,11 +67,12 @@ class BaseScene extends Phaser.Scene {
         this.map.createStaticLayer('clouds-front', [this.map.clouds], 0, 0).setScrollFactor(0.7);
         this.map.createStaticLayer('background', [this.map.mainTileset], 0, 0);
         this.map.createStaticLayer('platforms', [this.map.mainTileset], 0, 0);
+
+
         let objectLayer = this.map.getObjectLayer("objects");
         if (objectLayer) {
             objectLayer.objects.forEach(function (object) {
                 object = Utils.RetrieveCustomProperties(object);
-                // test for object types
                 if (object.type === "playerSpawn") {
                     this.createPlayer(object);
                 } else if (object.type === "enemySpawn") {
@@ -79,19 +80,14 @@ class BaseScene extends Phaser.Scene {
                 }
             }, this);
         }
-        this.bullets = this.physics.add.group({
-            defaultKey: 'bullet',
-            maxSize: 500
-        })
+        
+
         this.createCollision();
         this.setCamera();
-        this.cursors = this.input.keyboard.createCursorKeys();
 
-        this.score = 0;
+        this.cursors = this.input.keyboard.createCursorKeys();
         this.uiScene = this.scene.get('UIScene');
         this.uiScene.createUIScene(this.scene.key);
-        var attack1 = this.input.keyboard.addKey('q');
-
     }
 
     update(time, dt) {
@@ -101,13 +97,11 @@ class BaseScene extends Phaser.Scene {
         else if (this.cursors.right.isDown || this.uiScene.rightBtn.isDown) {this.player.moveRight();}
         else {this.player.setVelocityX(0);}
         if (Phaser.Input.Keyboard.JustDown(this.cursors.space) && this.player.body.onFloor()) {this.player.moveJump();}
-        // if (this.player.flipX) { this.player.setOffset(0, 0); } else { this.player.setOffset(0, 0); }
-        // console.log(this.player.body.x)
         if(this.player.body.y > 720){
             this.player.body.y = 50;
-            // console.log("Player Velocity = " + Math.floor(this.scene.scene.player.body.velocity.y))
             this.player.body.x = 144;
         }
+            this.uiScene.updateScore();
     }
 
     createPlayer(object) {
@@ -151,13 +145,13 @@ class UIScene extends Phaser.Scene {
             font: '18px Arial',
             fill: '#000000'
         });
-        this.score.setText('Score: ' + this.currentScene.score);
+        this.score.setText('Score: ' + this.currentScene.player.score);
         this.createPauseMenu();
         this.scene.launch(this);
     }
 
-    updateScore(score) {
-        this.score.setText('Score: ' + score);
+    updateScore() {
+        this.score.setText('Score: ' + this.currentScene.player.score);
     }
 
     createPauseMenu() {
