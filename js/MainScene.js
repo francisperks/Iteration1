@@ -30,19 +30,58 @@ class BaseScene extends Phaser.Scene {
         }
     }
     preload() {
-        this.load.spritesheet('player-idle', 'assets/player/player_idle-new.png', { frameWidth: 64, frameHeight: 48 });
-        this.load.spritesheet('player-attack1', 'assets/player/player_attack1-new.png', { frameWidth: 64, frameHeight: 48 });
-        this.load.spritesheet('player-attack2', 'assets/player/player_attack2-new.png', { frameWidth: 64, frameHeight: 48 });
-        this.load.spritesheet('player-attack3', 'assets/player/player_attack3.png', { frameWidth: 48, frameHeight: 48 });
-        this.load.spritesheet('player-death', 'assets/player/player_death.png', { frameWidth: 48, frameHeight: 48 });
-        this.load.spritesheet('player-walk', 'assets/player/player_walk.png', { frameWidth: 64, frameHeight: 48 });
-        this.load.spritesheet('player-jump', 'assets/player/player_jump-new.png', { frameWidth: 64, frameHeight: 48 });
-        this.load.spritesheet('enemy-idle', 'assets/enemy/enemy_idle-new.png', { frameWidth: 48, frameHeight: 40 });
-        this.load.spritesheet('enemy-walk', 'assets/enemy/enemy_walk-new.png', { frameWidth: 48, frameHeight: 40 });
-        this.load.spritesheet('enemy-die', 'assets/enemy/enemy-die.png', { frameWidth: 48, frameHeight: 40 });
-        this.load.spritesheet('enemy_attack', 'assets/enemy/enemy_attack-new.png', { frameWidth: 48, frameHeight: 40 });
-        this.load.spritesheet('enemy-hit', 'assets/enemy/enemy_hit.png', { frameWidth: 48, frameHeight: 40 });
-        this.load.spritesheet('slash', 'assets/slash-thick.png', { frameWidth: 30, frameHeight: 48});
+        this.load.spritesheet('player-idle', 'assets/player/player_idle-new.png', {
+            frameWidth: 64,
+            frameHeight: 48
+        });
+        this.load.spritesheet('player-attack1', 'assets/player/player_attack1-new.png', {
+            frameWidth: 64,
+            frameHeight: 48
+        });
+        this.load.spritesheet('player-attack2', 'assets/player/player_attack2-new.png', {
+            frameWidth: 64,
+            frameHeight: 48
+        });
+        this.load.spritesheet('player-attack3', 'assets/player/player_attack3.png', {
+            frameWidth: 48,
+            frameHeight: 48
+        });
+        this.load.spritesheet('player-death', 'assets/player/player_death.png', {
+            frameWidth: 48,
+            frameHeight: 48
+        });
+        this.load.spritesheet('player-walk', 'assets/player/player_walk.png', {
+            frameWidth: 64,
+            frameHeight: 48
+        });
+        this.load.spritesheet('player-jump', 'assets/player/player_jump-new.png', {
+            frameWidth: 64,
+            frameHeight: 48
+        });
+        this.load.spritesheet('enemy-idle', 'assets/enemy/enemy_idle-new.png', {
+            frameWidth: 48,
+            frameHeight: 40
+        });
+        this.load.spritesheet('enemy-walk', 'assets/enemy/enemy_walk-new.png', {
+            frameWidth: 48,
+            frameHeight: 40
+        });
+        this.load.spritesheet('enemy-die', 'assets/enemy/enemy-die.png', {
+            frameWidth: 48,
+            frameHeight: 40
+        });
+        this.load.spritesheet('enemy_attack', 'assets/enemy/enemy_attack-new.png', {
+            frameWidth: 48,
+            frameHeight: 40
+        });
+        this.load.spritesheet('enemy-hit', 'assets/enemy/enemy_hit.png', {
+            frameWidth: 48,
+            frameHeight: 40
+        });
+        this.load.spritesheet('slash', 'assets/slash-thick.png', {
+            frameWidth: 30,
+            frameHeight: 48
+        });
         this.load.image('bullet', 'assets/bullet.png');
 
 
@@ -80,7 +119,7 @@ class BaseScene extends Phaser.Scene {
                 }
             }, this);
         }
-        
+
 
         this.createCollision();
         this.setCamera();
@@ -93,15 +132,21 @@ class BaseScene extends Phaser.Scene {
     update(time, dt) {
         this.player.update();
 
-        if (this.cursors.left.isDown || this.uiScene.leftBtn.isDown) {this.player.moveLeft();}
-        else if (this.cursors.right.isDown || this.uiScene.rightBtn.isDown) {this.player.moveRight();}
-        else {this.player.setVelocityX(0);}
-        if (Phaser.Input.Keyboard.JustDown(this.cursors.space) && this.player.body.onFloor()) {this.player.moveJump();}
-        if(this.player.body.y > 720){
+        if (this.cursors.left.isDown || this.uiScene.leftBtn.isDown) {
+            this.player.moveLeft();
+        } else if (this.cursors.right.isDown || this.uiScene.rightBtn.isDown) {
+            this.player.moveRight();
+        } else {
+            this.player.setVelocityX(0);
+        }
+        if (Phaser.Input.Keyboard.JustDown(this.cursors.space) && this.player.body.onFloor()) {
+            this.player.moveJump();
+        }
+        if (this.player.body.y > 720) {
             this.player.body.y = 50;
             this.player.body.x = 144;
         }
-            this.uiScene.updateScore();
+        this.uiScene.updateScore();
     }
 
     createPlayer(object) {
@@ -159,7 +204,7 @@ class UIScene extends Phaser.Scene {
             this.scene.pauseMenu.visible = true;
             this.scene.currentScene.scene.pause();
         });
-        
+
         this.leftBtn = new Button(this, 50, config.height - 150, "playBtn", function () {
             this.scene.currentScene.player.moveLeft();
         });
@@ -169,19 +214,19 @@ class UIScene extends Phaser.Scene {
         this.jumpBtn = new Button(this, config.width - 175, config.height - 150, "jumpBtn", function () {
             this.scene.currentScene.player.moveJump()
         })
-        this.ability1 = new Button(this, config.width - 550, config.height - 150, "heart", function() {
+        this.ability1 = new Button(this, config.width - 550, config.height - 150, "heart", function () {
             // this.scene.currentScene.player.attackOne.fire();
-            if(!this.scene.currentScene.player.usingAbility){
+            if (!this.scene.currentScene.player.usingAbility) {
                 this.scene.currentScene.player.abilityHeal();
             }
         })
-        this.ability2 = new Button(this, config.width - 425, config.height - 150, "attack1", function() {
-            if(!this.scene.currentScene.player.usingAbility){
+        this.ability2 = new Button(this, config.width - 425, config.height - 150, "attack1", function () {
+            if (!this.scene.currentScene.player.usingAbility) {
                 this.scene.currentScene.player.attackOne();
             }
         })
-        this.ability3 = new Button(this, config.width - 300, config.height - 150, "attack2", function() {
-            if(!this.scene.currentScene.player.usingAbility){
+        this.ability3 = new Button(this, config.width - 300, config.height - 150, "attack2", function () {
+            if (!this.scene.currentScene.player.usingAbility) {
                 this.scene.currentScene.player.attackTwo();
             }
         })
@@ -202,23 +247,27 @@ class UIScene extends Phaser.Scene {
         this.add.existing(this.ability2)
         this.add.existing(this.ability3)
 
-        this.pauseMenu = new Menu(this, (1280/2)-(900/2), (720/2)-(700/2), 900, 700, "pauseMenu", [
-            this.menuPause = new Button(this, 470-150, 425, "exitBtn", function () {
+        this.pauseMenu = new Menu(this, (1280 / 2) - (900 / 2), (720 / 2) - (700 / 2), 900, 700, "pauseMenu", [
+            this.menuPause = new Button(this, 470 - 150, 425, "exitBtn", function () {
                 this.scene.currentScene.music.stopAllAudio();
                 this.scene.currentScene.scene.stop();
                 this.scene.scene.start("MenuScene");
             }).setScale(0.9),
-            this.menuPlay = new Button(this, 470-150, 175, "contBtn", function () {
+            this.menuPlay = new Button(this, 470 - 150, 175, "contBtn", function () {
                 this.scene.pauseMenu.visible = false;
                 this.scene.currentScene.scene.resume();
             }).setScale(0.9),
-            this.fullscreen = new Button(this, 470-150, 300, "fullBtn", function () {
+
+
+            this.fullscreen = new Button(this, 470 - 150, 300, "fullBtn", function () {
                 if (!this.scene.scale.isFullscreen) {
                     this.scene.scale.startFullscreen();
                 } else {
                     this.scene.scale.stopFullscreen();
                 }
             }).setScale(0.9)
+
+
         ]);
         this.add.existing(this.pauseMenu);
         this.pauseMenu.visible = false;
@@ -286,12 +335,12 @@ class MenuScene extends Phaser.Scene {
     }
 
     create() {
-        this.add.image(640,360,'menu-5');
-        this.stars = this.add.image(640,200,'menu-4');
-        this.cloudssss = this.add.image(640,360,'menu-3');
-        this.moon = this.add.image(640,360,'menu-2');
-        this.cloudsss = this.add.image(640,360,'menu-1');
-        this.add.image(640,360,'menuFront');
+        this.add.image(640, 360, 'menu-5');
+        this.stars = this.add.image(640, 200, 'menu-4');
+        this.cloudssss = this.add.image(640, 360, 'menu-3');
+        this.moon = this.add.image(640, 360, 'menu-2');
+        this.cloudsss = this.add.image(640, 360, 'menu-1');
+        this.add.image(640, 360, 'menuFront');
 
         this.mainMenu = new Menu(this, 0, 0, 1280, 720, "menuFront", [
             new Button(this, 50, 165, "playBtn", function () {
@@ -361,31 +410,122 @@ class MenuScene extends Phaser.Scene {
         this.sfx = new AudioManager(this);
     }
 
-    update(){
-        this.moon.y+=(Math.sin(this.scene.systems.time.now/500)/10)
+    update() {
+        this.moon.y += (Math.sin(this.scene.systems.time.now / 500) / 10)
         console.log()
-        this.stars.x+=(Math.sin(this.scene.systems.time.now/250)/250)
-        this.stars.y+=(Math.sin(this.scene.systems.time.now/250)/250)
-        this.stars.scale+= (Math.sin(this.scene.systems.time.now/2500)/2500)
+        this.stars.x += (Math.sin(this.scene.systems.time.now / 250) / 250)
+        this.stars.y += (Math.sin(this.scene.systems.time.now / 250) / 250)
+        this.stars.scale += (Math.sin(this.scene.systems.time.now / 2500) / 2500)
         this.cloudssss.scale = 1.25
         this.cloudsss.scale = 1.25
-        this.cloudssss.x+=(Math.sin(this.scene.systems.time.now/-5000)/10)
-        this.cloudsss.x+=(Math.sin(this.scene.systems.time.now/5000)/10)
-
-        
+        this.cloudssss.x += (Math.sin(this.scene.systems.time.now / -5000) / 10)
+        this.cloudsss.x += (Math.sin(this.scene.systems.time.now / 5000) / 10)
     }
 }
 
 class Level1 extends BaseScene {
-    constructor(){
+    constructor() {
         super('Level1');
     }
     preload() {
-        super.preload();
+        this.load.spritesheet('player-idle', 'assets/player/player_idle-new.png', {
+            frameWidth: 64,
+            frameHeight: 48
+        });
+        this.load.spritesheet('player-attack1', 'assets/player/player_attack1-new.png', {
+            frameWidth: 64,
+            frameHeight: 48
+        });
+        this.load.spritesheet('player-attack2', 'assets/player/player_attack2-new.png', {
+            frameWidth: 64,
+            frameHeight: 48
+        });
+        this.load.spritesheet('player-attack3', 'assets/player/player_attack3.png', {
+            frameWidth: 48,
+            frameHeight: 48
+        });
+        this.load.spritesheet('player-death', 'assets/player/player_death.png', {
+            frameWidth: 48,
+            frameHeight: 48
+        });
+        this.load.spritesheet('player-walk', 'assets/player/player_walk.png', {
+            frameWidth: 64,
+            frameHeight: 48
+        });
+        this.load.spritesheet('player-jump', 'assets/player/player_jump-new.png', {
+            frameWidth: 64,
+            frameHeight: 48
+        });
+        this.load.spritesheet('enemy-idle', 'assets/enemy/enemy_idle-new.png', {
+            frameWidth: 48,
+            frameHeight: 40
+        });
+        this.load.spritesheet('enemy-walk', 'assets/enemy/enemy_walk-new.png', {
+            frameWidth: 48,
+            frameHeight: 40
+        });
+        this.load.spritesheet('enemy-die', 'assets/enemy/enemy-die.png', {
+            frameWidth: 48,
+            frameHeight: 40
+        });
+        this.load.spritesheet('enemy_attack', 'assets/enemy/enemy_attack-new.png', {
+            frameWidth: 48,
+            frameHeight: 40
+        });
+        this.load.spritesheet('enemy-hit', 'assets/enemy/enemy_hit.png', {
+            frameWidth: 48,
+            frameHeight: 40
+        });
+        this.load.spritesheet('slash', 'assets/slash-thick.png', {
+            frameWidth: 30,
+            frameHeight: 48
+        });
+        this.load.image('bullet', 'assets/bullet.png');
+
+
+        this.load.image('tileset', 'assets/tileset_Padded.png');
+        this.load.image('clouds', 'assets/clouds.png');
+        this.load.image('sky', 'assets/sky.png');
+        this.load.tilemapTiledJSON('tilemap', 'assets/level4.json');
     }
 
     create() {
-        super.create();
+        this.map = this.make.tilemap({
+            key: 'tilemap'
+        });
+        this.enemies = this.physics.add.group();
+        this.enemies.runChildUpdate = true;
+        this.map.mainTileset = this.map.addTilesetImage('tileset_Padded', 'tileset')
+        this.map.clouds = this.map.addTilesetImage('clouds', 'clouds');
+        this.map.sky = this.map.addTilesetImage('sky', 'sky');
+        this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
+
+        this.map.createStaticLayer('sky', [this.map.sky], 0, 0).setScrollFactor(0.1);
+        this.map.createStaticLayer('clouds-back', [this.map.clouds], 0, 0).setScrollFactor(0.4);
+        this.map.createStaticLayer('clouds-front', [this.map.clouds], 0, 0).setScrollFactor(0.7);
+        this.map.createStaticLayer('background', [this.map.mainTileset], 0, 0);
+        this.map.createStaticLayer('platforms', [this.map.mainTileset], 0, 0);
+
+
+        let objectLayer = this.map.getObjectLayer("objects");
+        if (objectLayer) {
+            objectLayer.objects.forEach(function (object) {
+                object = Utils.RetrieveCustomProperties(object);
+                if (object.type === "playerSpawn") {
+                    this.createPlayer(object);
+                } else if (object.type === "enemySpawn") {
+                    this.createEnemy(object);
+                }
+            }, this);
+        }
+
+
+        this.createCollision();
+        this.setCamera();
+
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.uiScene = this.scene.get('UIScene');
+        this.uiScene.createUIScene(this.scene.key);
     }
 
     update() {
@@ -394,19 +534,19 @@ class Level1 extends BaseScene {
 }
 
 class Level2 extends BaseScene {
-    constructor(){
+    constructor() {
         super('Level2');
     }
 
-    preload(){
+    preload() {
 
     }
 
-    create(){
+    create() {
 
     }
 
-    update(){
+    update() {
 
     }
 }

@@ -38,10 +38,10 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.setVelocityX(-this.maxSpeed);
     }
 
-    checkOrientation(){
-        if(this.flipX){
+    checkOrientation() {
+        if (this.flipX) {
             return true;
-        }else if(!this.flipX){
+        } else if (!this.flipX) {
             return false;
         }
     }
@@ -66,24 +66,24 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
 
     handleAttac(enemy) {
-        if (this.scene.physics.overlap(enemy, this.attack, function(object1, object2){
-            object1.beingAttacked = true;
-            object2.disableBody(false, true)
-            object2.visible = true;
-            if(!enemy.isDead()){
-                enemy.damage()
-            }
-        })){}else{
+        if (this.scene.physics.overlap(enemy, this.attack, function (object1, object2) {
+                object1.beingAttacked = true;
+                object2.disableBody(false, true)
+                object2.visible = true;
+                if (!enemy.isDead()) {
+                    enemy.damage()
+                }
+            })) {} else {
             this.scene.enemy.beingAttacked = false;
         };
-        
+
     }
 
 
     update() {
-        
+
         // this.scene.score.setText('Score: ' + this.score);
-        
+
         if (!this.usingAbility) {
             if (!this.body.onFloor() && this.body.velocity.y > 0) {
                 this.playAnimations("player-fall")
@@ -120,11 +120,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.playAnimations("player-attack1");
         var attack = this.scene.physics.add.sprite(this.x + 20, this.y + 5, "slash", 0);
         attack.velocity = 30
-        if(this.checkOrientation() == false){
-            attack.x = this.x +20;
+        if (this.checkOrientation() == false) {
+            attack.x = this.x + 20;
             attack.flipX = false;
             attack.setVelocityX(attack.velocity)
-        }else  if(this.checkOrientation() == true){
+        } else if (this.checkOrientation() == true) {
             attack.x = this.x - 20;
             attack.flipX = true;
             attack.setVelocityX(-attack.velocity)
@@ -139,24 +139,29 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
 
         this.attack = attack
-        
-        this.scene.time.addEvent({ delay: 500, callback: () => { this.usingAbility = false; } })
+
+        this.scene.time.addEvent({
+            delay: 500,
+            callback: () => {
+                this.usingAbility = false;
+            }
+        })
         // console.log("this is attack" + attack)
         // console.log("this is enemy" + this.scene.enemy)
     }
 
-    attackTwo(){
+    attackTwo() {
         this.usingAbility = true;
         this.playAnimations("player-attack1");
         var attack = this.scene.physics.add.sprite(this.x + 20, this.y + 5, "slash", 0);
         var r = 0
-        
-        if(this.checkOrientation() == false){
-            attack.x = this.x +20
-            r = 40     
+
+        if (this.checkOrientation() == false) {
+            attack.x = this.x + 20
+            r = 40
             attack.flipX = false;
             attack.setVelocityX(30)
-        }else  if(this.checkOrientation() == true){
+        } else if (this.checkOrientation() == true) {
             attack.x = this.x - 20;
             r = 40
             attack.flipX = true;
@@ -170,12 +175,17 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         });
 
         this.attack = attack
-        this.scene.time.addEvent({ delay: 500, callback: () => { this.usingAbility = false; } })
+        this.scene.time.addEvent({
+            delay: 500,
+            callback: () => {
+                this.usingAbility = false;
+            }
+        })
         // console.log("this is attack" + attack)
         // console.log("this is enemy" + this.scene.enemy)
     }
 
-    abilityHeal(){
+    abilityHeal() {
         this.setVelocityY(-500)
     }
 }
@@ -204,17 +214,27 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.damageCount = 0;
         this.damageMax = 10;
         this.body = new Phaser.Physics.Arcade.Body(scene.physics.world, this);
-        this.isBeingDamaged = false;
+        this.usingAbility = false;
         this.setSize(10, 24).setOffset(19, 16).setScale(1.25)
         scene.physics.add.existing(this);
         scene.add.existing(this);
 
         this.zones = [];
-        
+
         this.scene.anims.create({
             key: "enemy-attack",
             frames: this.scene.anims.generateFrameNumbers("enemy_attack", {
                 start: 0,
+                end: 7,
+            }),
+            frameRate: 12,
+            repeat: 0,
+        });
+
+        this.scene.anims.create({
+            key: "enemyR",
+            frames: this.scene.anims.generateFrameNumbers("enemy_attack", {
+                start: 8,
                 end: 17,
             }),
             frameRate: 12,
@@ -265,12 +285,12 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     damage() {
         this.scene.player.score++;
-        this.damageCount+= 5;
-        // this.anims.play("enemy-hit", this);
+        this.damageCount += 5;
+        this.anims.play("enemy-hit", this);
         this.isBeingDamaged = true;
-        // this.on("animationcomplete", function (){
-        //     this.isBeingDamaged = false
-        // }, this)
+        this.on("animationcomplete-enemy-hit", function () {
+            this.isBeingDamaged = false
+        }, this)
     }
 
     isDead() {
@@ -279,40 +299,63 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    enemyAttack(){
-        this.usingAbility = true;
-        var enAttack = this.scene.physics.add.sprite(this.x + 20, this.y + 5, "slash", 0);
-        enAttack.velocity = 30
-        if(this.checkOrientation() == false){
-            enAttack.x = this.x +20;
-            enAttack.flipX = false;
-            enAttack.setVelocityX(enAttack.velocity)
-        }else  if(this.checkOrientation() == true){
-            enAttack.x = this.x - 20;
-            enAttack.flipX = true;
-            enAttack.setVelocityX(-enAttack.velocity)
+    enemyAttack() {
+        if (!this.seePlayer) {
+            this.usingAbility = false;
+            this.move();
+        } else if (this.seePlayer && !this.usingAbility) {
+            this.usingAbility = true;
+            this.anims.play("enemy-attack", true)
+            this.on('animationcomplete-enemy-attack', function () {
+                this.enAttack = enAttack
+                var enAttack = this.scene.physics.add.sprite(this.x + 20, this.y + 5, "slash", 0);
+                enAttack.velocity = 30
+                if (this.checkOrientation() == false) {
+                    enAttack.x = this.x + 20;
+                    enAttack.flipX = false;
+                    enAttack.setVelocityX(enAttack.velocity)
+                } else if (this.checkOrientation() == true) {
+                    enAttack.x = this.x - 20;
+                    enAttack.flipX = true;
+                    enAttack.setVelocityX(-enAttack.velocity)
+                }
+                enAttack.setSize(12, 24)
+                enAttack.setDepth(10)
+                enAttack.body.setAllowGravity(false);
+                enAttack.anims.play("slash", true);
+                enAttack.on('animationcomplete-slash', function () {
+                    this.destroy();
+                    // enemy.attackRecover();
+                    // this.anims.play("enemyR", true)
+
+                    // this.on("animationcomplete-enemyR", function(){
+                    // this.usingAbility = false;
+                    // })
+                });
+                // this.attackRecover();
+
+                this.anims.play("enemyR", true)
+                this.on("animationcomplete-enemyR", function () {
+                    this.usingAbility = false;
+                })
+            });
+
+
+
+            // this.anims.play("enemy-attack", true)
+            // this.on("animationcomplete-enemy-attack", function () {
+            //     this.enemyAttack();
+            //     this.attackRecover();
+            // })
         }
-        enAttack.setSize(12, 24)
-        enAttack.setDepth(10)
-        enAttack.body.setAllowGravity(false);
-        enAttack.anims.play("slash", true);
-        enAttack.on('animationcomplete', function () {
-            this.destroy();
-        });
 
-
-        this.enAttack = enAttack
-        
-        this.scene.time.addEvent({ delay: 500, callback: () => { this.usingAbility = false; } })
-        // console.log("this is attack" + attack)
-        // console.log("this is enemy" + this.scene.enemy)        
     }
 
     move() {
 
         var xOne = 306;
         var xTwo = 712;
-        if(!this.isDead()){
+        if (!this.isDead()) {
             if (this.x > xTwo) {
                 this.speedMult = -1;
                 this.flipX = true;
@@ -326,40 +369,53 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         }
 
         this.graphics.clear();
+        // for (var i = 0; i < this.zones.length; i++) {
+        //     var tempZone = this.zones[i];
+        //     tempZone.x = this.x - this.xCoord;
+        //     tempZone.y = this.y - 5;
+        //     if (tempZone.contains(this.scene.player.x, this.scene.player.y)) {
+        //         this.seePlayer = true;
+        //         // this.graphics.fillStyle(0x00000aa, 1)
+        //     } else {
+        //         this.seePlayer = false;
+        //     }
+        //     // this.graphics.fillRectShape(tempZone);
+        // }
+    }
+
+    zoneChecker() {
         for (var i = 0; i < this.zones.length; i++) {
             var tempZone = this.zones[i];
             tempZone.x = this.x - this.xCoord;
             tempZone.y = this.y - 5;
             if (tempZone.contains(this.scene.player.x, this.scene.player.y)) {
-                this.seePlayer =  true;
-                this.setVelocityX(0)
-                // this.enemyAttack();
-                this.anims.play("enemy-attack",true)
-                this.on("animationcomplete", function(){
-                    this.enemyAttack();
-                })
+                this.seePlayer = true;
                 // this.graphics.fillStyle(0x00000aa, 1)
-            }else{
+            } else {
                 this.seePlayer = false;
             }
             // this.graphics.fillRectShape(tempZone);
         }
     }
 
-    seePlayer() {
-        this.setVelocity(0)
-    }
-
-    checkOrientation(){
-        if(this.flipX){
+    checkOrientation() {
+        if (this.flipX) {
             return true;
-        }else if(!this.flipX){
+        } else if (!this.flipX) {
             return false;
         }
     }
 
     giveZone() {
-        this.graphics = this.scene.add.graphics({ lineStyle: { width: 2, color: 0x0000aa }, fillStyle: { color: 0xaa0000 } });
+        this.graphics = this.scene.add.graphics({
+            lineStyle: {
+                width: 2,
+                color: 0x0000aa
+            },
+            fillStyle: {
+                color: 0xaa0000
+            }
+        });
         this.zone = new Phaser.Geom.Rectangle(this.x, this.y, 5, this.body.height)
         this.graphics.fillRectShape(this.zone)
         this.zones.push(this.zone)
@@ -367,16 +423,31 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
 
     update() {
-        
+
+        this.zoneChecker();
         if (!this.isDead()) {
-            if(!this.seePlayer || !this.isBeingDamaged){
+            if (this.seePlayer) {
+                this.setVelocityX(0)
+                if (!this.usingAbility && this.seePlayer) {
+                    this.enemyAttack();
+                    console.log(this.seePlayer)
+                }
+            } else if (!this.seePlayer || !this.isBeingDamaged) {
                 this.move();
                 if (this.body.velocity.x > 0 || this.body.velocity.x < 0) {
                     this.anims.play("enemy-walk", true)
+                    this.usingAbility = false;
+                    /*
+                    this basically makes it so the enemy isn't 
+                    using an ability while it's moving, because
+                    I had an issue where this.usingAbility was 
+                    stuck on truewhen the play rushed through the
+                    sight of the enemy
+                    */
                 }
             }
-            
-        }   else if (this.isDead()) {
+
+        } else if (this.isDead()) {
             this.setVelocityX(0)
             this.anims.play("enemy-die", true)
             this.on('animationcomplete', function () {
