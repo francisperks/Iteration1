@@ -211,14 +211,14 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         this.zones = [];
         
-        this.die = this.scene.anims.create({
-            key: "enemyAttack",
+        this.scene.anims.create({
+            key: "enemy-attack",
             frames: this.scene.anims.generateFrameNumbers("enemy_attack", {
                 start: 0,
                 end: 17,
             }),
             frameRate: 12,
-            repeat: -1,
+            repeat: 0,
         });
 
         this.scene.anims.create({
@@ -258,7 +258,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 end: 7,
             }),
             frameRate: 12,
-            repeat: -1,
+            repeat: 0,
         });
 
     }
@@ -280,7 +280,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     enemyAttack(){
-        console.log("attack")
         this.usingAbility = true;
         var enAttack = this.scene.physics.add.sprite(this.x + 20, this.y + 5, "slash", 0);
         enAttack.velocity = 30
@@ -334,7 +333,11 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
             if (tempZone.contains(this.scene.player.x, this.scene.player.y)) {
                 this.seePlayer =  true;
                 this.setVelocityX(0)
-                this.anims.play("enemyAttack",true)
+                // this.enemyAttack();
+                this.anims.play("enemy-attack",true)
+                this.on("animationcomplete", function(){
+                    this.enemyAttack();
+                })
                 // this.graphics.fillStyle(0x00000aa, 1)
             }else{
                 this.seePlayer = false;
@@ -345,6 +348,14 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     seePlayer() {
         this.setVelocity(0)
+    }
+
+    checkOrientation(){
+        if(this.flipX){
+            return true;
+        }else if(!this.flipX){
+            return false;
+        }
     }
 
     giveZone() {
@@ -363,8 +374,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 if (this.body.velocity.x > 0 || this.body.velocity.x < 0) {
                     this.anims.play("enemy-walk", true)
                 }
-            } else if (this.seePlayer) {
-                this.enemyAttack();
             }
             
         }   else if (this.isDead()) {

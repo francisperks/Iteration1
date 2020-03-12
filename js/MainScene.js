@@ -40,7 +40,7 @@ class BaseScene extends Phaser.Scene {
         this.load.spritesheet('enemy-idle', 'assets/enemy/enemy_idle-new.png', { frameWidth: 48, frameHeight: 40 });
         this.load.spritesheet('enemy-walk', 'assets/enemy/enemy_walk-new.png', { frameWidth: 48, frameHeight: 40 });
         this.load.spritesheet('enemy-die', 'assets/enemy/enemy-die.png', { frameWidth: 48, frameHeight: 40 });
-        this.load.spritesheet('enemy_attack', 'assets/enemy/enemy_attack.png', { frameWidth: 48, frameHeight: 40 });
+        this.load.spritesheet('enemy_attack', 'assets/enemy/enemy_attack-new.png', { frameWidth: 48, frameHeight: 40 });
         this.load.spritesheet('enemy-hit', 'assets/enemy/enemy_hit.png', { frameWidth: 48, frameHeight: 40 });
         this.load.spritesheet('slash', 'assets/slash-thick.png', { frameWidth: 30, frameHeight: 48});
         this.load.image('bullet', 'assets/bullet.png');
