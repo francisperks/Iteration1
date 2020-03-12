@@ -266,17 +266,47 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     damage() {
         this.scene.player.score++;
         this.damageCount+= 5;
-        this.anims.play("enemy-hit", this)  
+        // this.anims.play("enemy-hit", this);
         this.isBeingDamaged = true;
-        this.on("animationcomplete", function (){
-            this.isBeingDamaged = false
-        }, this)
+        // this.on("animationcomplete", function (){
+        //     this.isBeingDamaged = false
+        // }, this)
     }
 
     isDead() {
         if (this.damageCount >= this.damageMax) {
             return true
         }
+    }
+
+    enemyAttack(){
+        console.log("attack")
+        this.usingAbility = true;
+        var enAttack = this.scene.physics.add.sprite(this.x + 20, this.y + 5, "slash", 0);
+        enAttack.velocity = 30
+        if(this.checkOrientation() == false){
+            enAttack.x = this.x +20;
+            enAttack.flipX = false;
+            enAttack.setVelocityX(enAttack.velocity)
+        }else  if(this.checkOrientation() == true){
+            enAttack.x = this.x - 20;
+            enAttack.flipX = true;
+            enAttack.setVelocityX(-enAttack.velocity)
+        }
+        enAttack.setSize(12, 24)
+        enAttack.setDepth(10)
+        enAttack.body.setAllowGravity(false);
+        enAttack.anims.play("slash", true);
+        enAttack.on('animationcomplete', function () {
+            this.destroy();
+        });
+
+
+        this.enAttack = enAttack
+        
+        this.scene.time.addEvent({ delay: 500, callback: () => { this.usingAbility = false; } })
+        // console.log("this is attack" + attack)
+        // console.log("this is enemy" + this.scene.enemy)        
     }
 
     move() {
@@ -334,7 +364,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                     this.anims.play("enemy-walk", true)
                 }
             } else if (this.seePlayer) {
-
+                this.enemyAttack();
             }
             
         }   else if (this.isDead()) {
