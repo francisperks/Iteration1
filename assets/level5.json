@@ -1,4 +1,13 @@
-{ "height":30,
+{ "compressionlevel":0,
+ "editorsettings":
+    {
+     "export":
+        {
+         "format":"json",
+         "target":"level5.json"
+        }
+    },
+ "height":30,
  "infinite":false,
  "layers":[
         {
@@ -115,53 +124,73 @@
                  "y":129.5
                 }, 
                 {
-                 "height":0,
-                 "id":11,
+                 "height":19.3333333333333,
+                 "id":16,
                  "name":"",
-                 "point":true,
                  "rotation":0,
                  "type":"enemySpawn",
                  "visible":true,
-                 "width":0,
-                 "x":267,
-                 "y":166
+                 "width":80.6666666666667,
+                 "x":225.333333333333,
+                 "y":163.333333333333
                 }, 
                 {
-                 "height":0,
-                 "id":12,
+                 "height":19.3333,
+                 "id":18,
                  "name":"",
-                 "point":true,
                  "rotation":0,
                  "type":"enemySpawn",
                  "visible":true,
-                 "width":0,
-                 "x":377,
-                 "y":196
+                 "width":80.6667,
+                 "x":338.333316666667,
+                 "y":197.666683333333
                 }, 
                 {
-                 "height":0,
-                 "id":13,
+                 "height":19.3333,
+                 "id":19,
                  "name":"",
-                 "point":true,
                  "rotation":0,
                  "type":"enemySpawn",
                  "visible":true,
-                 "width":0,
-                 "x":493,
-                 "y":222
+                 "width":80.6667,
+                 "x":447.66665,
+                 "y":228.33335
                 }, 
                 {
-                 "height":0,
-                 "id":14,
+                 "height":19.3333,
+                 "id":20,
                  "name":"",
-                 "point":true,
                  "rotation":0,
                  "type":"enemySpawn",
                  "visible":true,
-                 "width":0,
-                 "x":601,
-                 "y":259
+                 "width":80.6667,
+                 "x":560.333316666667,
+                 "y":259.000016666667
+                }, 
+                {
+                 "height":19.3333,
+                 "id":21,
+                 "name":"",
+                 "rotation":0,
+                 "type":"enemySpawn",
+                 "visible":true,
+                 "width":219.333366666667,
+                 "x":678.333316666667,
+                 "y":290.33335
+                }, 
+                {
+                 "height":15.3333333333333,
+                 "id":22,
+                 "name":"",
+                 "rotation":0,
+                 "type":"enemySpawn",
+                 "visible":true,
+                 "width":43.333333333333,
+                 "x":1008.66666666667,
+                 "y":266.666666666667
                 }],
+         "offsetx":0.666666666666686,
+         "offsety":0,
          "opacity":1,
          "type":"objectgroup",
          "visible":true,
@@ -169,10 +198,10 @@
          "y":0
         }],
  "nextlayerid":10,
- "nextobjectid":16,
+ "nextobjectid":23,
  "orientation":"orthogonal",
  "renderorder":"right-down",
- "tiledversion":"1.2.4",
+ "tiledversion":"1.3.1",
  "tileheight":16,
  "tilesets":[
         {

@@ -1,7 +1,7 @@
 // function LERP(a, b, f) { return a + f * (b - a) }
 class BaseScene extends Phaser.Scene {
-    constructor() {
-        super("MainScene");
+    constructor(key) {
+        super(key);
 
         this.map = 0;
         this.player = 0;
@@ -30,70 +30,25 @@ class BaseScene extends Phaser.Scene {
         }
     }
     preload() {
-        this.load.spritesheet('player-idle', 'assets/player/player_idle-new.png', {
-            frameWidth: 64,
-            frameHeight: 48
-        });
-        this.load.spritesheet('player-attack1', 'assets/player/player_attack1-new.png', {
-            frameWidth: 64,
-            frameHeight: 48
-        });
-        this.load.spritesheet('player-attack2', 'assets/player/player_attack2-new.png', {
-            frameWidth: 64,
-            frameHeight: 48
-        });
-        this.load.spritesheet('player-attack3', 'assets/player/player_attack3.png', {
-            frameWidth: 48,
-            frameHeight: 48
-        });
-        this.load.spritesheet('player-death', 'assets/player/player_death.png', {
-            frameWidth: 48,
-            frameHeight: 48
-        });
-        this.load.spritesheet('player-walk', 'assets/player/player_walk.png', {
-            frameWidth: 64,
-            frameHeight: 48
-        });
-        this.load.spritesheet('player-jump', 'assets/player/player_jump-new.png', {
-            frameWidth: 64,
-            frameHeight: 48
-        });
-        this.load.spritesheet('enemy-idle', 'assets/enemy/enemy_idle-new.png', {
-            frameWidth: 48,
-            frameHeight: 40
-        });
-        this.load.spritesheet('enemy-walk', 'assets/enemy/enemy_walk-new.png', {
-            frameWidth: 48,
-            frameHeight: 40
-        });
-        this.load.spritesheet('enemy-die', 'assets/enemy/enemy-die.png', {
-            frameWidth: 48,
-            frameHeight: 40
-        });
-        this.load.spritesheet('enemy_attack', 'assets/enemy/enemy_attack-new.png', {
-            frameWidth: 48,
-            frameHeight: 40
-        });
-        this.load.spritesheet('enemy-hit', 'assets/enemy/enemy_hit.png', {
-            frameWidth: 48,
-            frameHeight: 40
-        });
-        this.load.spritesheet('slash', 'assets/slash-thick.png', {
-            frameWidth: 30,
-            frameHeight: 48
-        });
+        this.load.spritesheet('player-idle', 'assets/player/player_idle-new.png', { frameWidth: 64, frameHeight: 48 });
+        this.load.spritesheet('player-attack1', 'assets/player/player_attack1-new.png', { frameWidth: 64, frameHeight: 48 });
+        this.load.spritesheet('player-attack2', 'assets/player/player_attack2-new.png', { frameWidth: 64, frameHeight: 48 });
+        this.load.spritesheet('player-attack3', 'assets/player/player_attack3.png', { frameWidth: 48, frameHeight: 48 });
+        this.load.spritesheet('player-death', 'assets/player/player_death.png', { frameWidth: 48, frameHeight: 48 });
+        this.load.spritesheet('player-walk', 'assets/player/player_walk.png', { frameWidth: 64, frameHeight: 48 });
+        this.load.spritesheet('player-jump', 'assets/player/player_jump-new.png', { frameWidth: 64, frameHeight: 48 });
+        this.load.spritesheet('enemy-idle', 'assets/enemy/enemy_idle-new.png', { frameWidth: 48, frameHeight: 40 });
+        this.load.spritesheet('enemy-walk', 'assets/enemy/enemy_walk-new.png', { frameWidth: 48, frameHeight: 40 });
+        this.load.spritesheet('enemy-die', 'assets/enemy/enemy-die.png', { frameWidth: 48, frameHeight: 40 });
+        this.load.spritesheet('enemy_attack', 'assets/enemy/enemy_attack-new.png', { frameWidth: 48, frameHeight: 40 });
+        this.load.spritesheet('enemy-hit', 'assets/enemy/enemy_hit.png', { frameWidth: 48, frameHeight: 40 });
+        this.load.spritesheet('slash', 'assets/slash-thick.png', { frameWidth: 30, frameHeight: 48 });
         this.load.image('bullet', 'assets/bullet.png');
-
-
         this.load.image('tileset', 'assets/tileset_Padded.png');
         this.load.image('clouds', 'assets/clouds.png');
         this.load.image('sky', 'assets/sky.png');
-        this.load.tilemapTiledJSON('tilemap', 'assets/level4.json');
     }
     create() {
-        this.map = this.make.tilemap({
-            key: 'tilemap'
-        });
         this.enemies = this.physics.add.group();
         this.enemies.runChildUpdate = true;
         this.map.mainTileset = this.map.addTilesetImage('tileset_Padded', 'tileset')
@@ -104,7 +59,9 @@ class BaseScene extends Phaser.Scene {
         this.map.createStaticLayer('sky', [this.map.sky], 0, 0).setScrollFactor(0.1);
         this.map.createStaticLayer('clouds-back', [this.map.clouds], 0, 0).setScrollFactor(0.4);
         this.map.createStaticLayer('clouds-front', [this.map.clouds], 0, 0).setScrollFactor(0.7);
-        this.map.createStaticLayer('background', [this.map.mainTileset], 0, 0);
+        this.map.createStaticLayer('background-2', [this.map.mainTileset], 0, 0);
+        this.map.createStaticLayer('background-1', [this.map.mainTileset], 0, 0);
+        this.map.createStaticLayer('background-0', [this.map.mainTileset], 0, 0);
         this.map.createStaticLayer('platforms', [this.map.mainTileset], 0, 0);
 
 
@@ -119,11 +76,8 @@ class BaseScene extends Phaser.Scene {
                 }
             }, this);
         }
-
-
         this.createCollision();
         this.setCamera();
-
         this.cursors = this.input.keyboard.createCursorKeys();
         this.uiScene = this.scene.get('UIScene');
         this.uiScene.createUIScene(this.scene.key);
@@ -131,7 +85,6 @@ class BaseScene extends Phaser.Scene {
 
     update(time, dt) {
         this.player.update();
-
         if (this.cursors.left.isDown || this.uiScene.leftBtn.isDown) {
             this.player.moveLeft();
         } else if (this.cursors.right.isDown || this.uiScene.rightBtn.isDown) {
@@ -158,12 +111,15 @@ class BaseScene extends Phaser.Scene {
     }
 
     createEnemy(object) {
-        this.enemy = new Enemy(this, object.x, object.y, 'enemy-idle');
+        this.enemyObject = object
+        this.enemy = new Enemy(this, object.x + (object.width / 2), object.y, 'enemy-idle');
         this.enemy.enableBody(true, this.enemy.x, this.enemy.y, true, true);
         this.enemies.add(this.enemy);
         this.scene.scene.enemy.giveZone();
         this.enemy.setDepth(4);
+        this.enemiesEnts.push(this.enemy);
     }
+
     createCollision() {
         this.collisionLayer = this.map.getLayer('platforms').tilemapLayer;
         this.collisionLayer.setCollisionBetween(0, 10000);
@@ -176,6 +132,12 @@ class BaseScene extends Phaser.Scene {
         this.camera.startFollow(this.player);
         this.camera.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
         this.camera.setZoom(2.5);
+    }
+
+    checkAllDead(levelKey) {
+        if (this.enemiesEnts.length == 0) {
+            this.scene.start(levelKey);
+        }
     }
 }
 
@@ -345,7 +307,7 @@ class MenuScene extends Phaser.Scene {
         this.mainMenu = new Menu(this, 0, 0, 1280, 720, "menuFront", [
             new Button(this, 50, 165, "playBtn", function () {
                 this.scene.music.stopAllAudio();
-                this.scene.scene.start("MainScene", {
+                this.scene.scene.start("Level1", {
                     music: this.scene.music,
                 });
             }),
@@ -428,109 +390,23 @@ class Level1 extends BaseScene {
         super('Level1');
     }
     preload() {
-        this.load.spritesheet('player-idle', 'assets/player/player_idle-new.png', {
-            frameWidth: 64,
-            frameHeight: 48
-        });
-        this.load.spritesheet('player-attack1', 'assets/player/player_attack1-new.png', {
-            frameWidth: 64,
-            frameHeight: 48
-        });
-        this.load.spritesheet('player-attack2', 'assets/player/player_attack2-new.png', {
-            frameWidth: 64,
-            frameHeight: 48
-        });
-        this.load.spritesheet('player-attack3', 'assets/player/player_attack3.png', {
-            frameWidth: 48,
-            frameHeight: 48
-        });
-        this.load.spritesheet('player-death', 'assets/player/player_death.png', {
-            frameWidth: 48,
-            frameHeight: 48
-        });
-        this.load.spritesheet('player-walk', 'assets/player/player_walk.png', {
-            frameWidth: 64,
-            frameHeight: 48
-        });
-        this.load.spritesheet('player-jump', 'assets/player/player_jump-new.png', {
-            frameWidth: 64,
-            frameHeight: 48
-        });
-        this.load.spritesheet('enemy-idle', 'assets/enemy/enemy_idle-new.png', {
-            frameWidth: 48,
-            frameHeight: 40
-        });
-        this.load.spritesheet('enemy-walk', 'assets/enemy/enemy_walk-new.png', {
-            frameWidth: 48,
-            frameHeight: 40
-        });
-        this.load.spritesheet('enemy-die', 'assets/enemy/enemy-die.png', {
-            frameWidth: 48,
-            frameHeight: 40
-        });
-        this.load.spritesheet('enemy_attack', 'assets/enemy/enemy_attack-new.png', {
-            frameWidth: 48,
-            frameHeight: 40
-        });
-        this.load.spritesheet('enemy-hit', 'assets/enemy/enemy_hit.png', {
-            frameWidth: 48,
-            frameHeight: 40
-        });
-        this.load.spritesheet('slash', 'assets/slash-thick.png', {
-            frameWidth: 30,
-            frameHeight: 48
-        });
-        this.load.image('bullet', 'assets/bullet.png');
-
-
-        this.load.image('tileset', 'assets/tileset_Padded.png');
-        this.load.image('clouds', 'assets/clouds.png');
-        this.load.image('sky', 'assets/sky.png');
-        this.load.tilemapTiledJSON('tilemap', 'assets/level4.json');
+        super.preload();
+        this.load.tilemapTiledJSON('level1', 'assets/level4.json');
     }
 
     create() {
         this.map = this.make.tilemap({
-            key: 'tilemap'
+            key: 'level1'
         });
-        this.enemies = this.physics.add.group();
-        this.enemies.runChildUpdate = true;
-        this.map.mainTileset = this.map.addTilesetImage('tileset_Padded', 'tileset')
-        this.map.clouds = this.map.addTilesetImage('clouds', 'clouds');
-        this.map.sky = this.map.addTilesetImage('sky', 'sky');
-        this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
-
-        this.map.createStaticLayer('sky', [this.map.sky], 0, 0).setScrollFactor(0.1);
-        this.map.createStaticLayer('clouds-back', [this.map.clouds], 0, 0).setScrollFactor(0.4);
-        this.map.createStaticLayer('clouds-front', [this.map.clouds], 0, 0).setScrollFactor(0.7);
-        this.map.createStaticLayer('background', [this.map.mainTileset], 0, 0);
-        this.map.createStaticLayer('platforms', [this.map.mainTileset], 0, 0);
-
-
-        let objectLayer = this.map.getObjectLayer("objects");
-        if (objectLayer) {
-            objectLayer.objects.forEach(function (object) {
-                object = Utils.RetrieveCustomProperties(object);
-                if (object.type === "playerSpawn") {
-                    this.createPlayer(object);
-                } else if (object.type === "enemySpawn") {
-                    this.createEnemy(object);
-                }
-            }, this);
-        }
-
-
-        this.createCollision();
-        this.setCamera();
-
-        this.cursors = this.input.keyboard.createCursorKeys();
-        this.uiScene = this.scene.get('UIScene');
-        this.uiScene.createUIScene(this.scene.key);
+        super.create();
     }
 
     update() {
+        super.checkAllDead('Level2')
         super.update();
     }
+
+
 }
 
 class Level2 extends BaseScene {
@@ -539,14 +415,20 @@ class Level2 extends BaseScene {
     }
 
     preload() {
-
+        super.preload();
+        this.load.tilemapTiledJSON('level2', 'assets/level5.json');
     }
 
     create() {
+        this.map = this.make.tilemap({
+            key: 'level2'
+        });
+        super.create();
 
     }
 
     update() {
-
+        // super.checkAllDead('Level3')
+        super.update();
     }
 }
