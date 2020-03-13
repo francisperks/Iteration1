@@ -337,15 +337,14 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     move() {
-        var x1 = this.currentScene.enemyObject.x
-        var x2 = (this.currentScene.enemyObject.x + this.currentScene.enemyObject.width);
+        console.log(this.currentScene.enemy.x2)
         if (!this.isDead()) {
-            if (this.x > x2) {
-                this.speedMult = -1;
-                this.flipX = true;
-                this.xCoord = 30;
-            } else if (this.x < x1) {
-                this.speedMult = 1;
+            if (this.x > this.currentScene.enemy.x2) {              // James if you're seeing this, i know why it doesn't work
+                this.speedMult = -1;                                // it's because it's using a single X1 and X2 for all of
+                this.flipX = true;                                  // the enemies, instead of assigning each enemy its own
+                this.xCoord = 30;                                   // X1 and X2, I just figured this out and feel stupid
+            } else if (this.x < this.currentScene.enemy.x1) {       // I just need to figure out a way around this
+                this.speedMult = 1;                                 // would a forEach() work do you reckon? like a for loop
                 this.flipX = false;
                 this.xCoord = -25;
             }

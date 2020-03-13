@@ -73,6 +73,10 @@ class BaseScene extends Phaser.Scene {
                     this.createPlayer(object);
                 } else if (object.type === "enemySpawn") {
                     this.createEnemy(object);
+                    this.enemy.x1 = object.x
+                    this.enemy.x2 = object.x + object.width
+                    console.log("enemyX1  " + this.enemy.x1)
+                    console.log("enemyX2  " + this.enemy.x2)
                 }
             }, this);
         }
@@ -111,7 +115,6 @@ class BaseScene extends Phaser.Scene {
     }
 
     createEnemy(object) {
-        this.enemyObject = object
         this.enemy = new Enemy(this, object.x + (object.width / 2), object.y, 'enemy-idle');
         this.enemy.enableBody(true, this.enemy.x, this.enemy.y, true, true);
         this.enemies.add(this.enemy);

@@ -127,6 +127,12 @@
                  "height":19.3333333333333,
                  "id":16,
                  "name":"",
+                 "properties":[
+                        {
+                         "name":"sprite",
+                         "type":"string",
+                         "value":"enemy"
+                        }],
                  "rotation":0,
                  "type":"enemySpawn",
                  "visible":true,
@@ -138,6 +144,12 @@
                  "height":19.3333,
                  "id":18,
                  "name":"",
+                 "properties":[
+                        {
+                         "name":"sprite",
+                         "type":"string",
+                         "value":"enemy"
+                        }],
                  "rotation":0,
                  "type":"enemySpawn",
                  "visible":true,
@@ -149,6 +161,12 @@
                  "height":19.3333,
                  "id":19,
                  "name":"",
+                 "properties":[
+                        {
+                         "name":"sprite",
+                         "type":"string",
+                         "value":"enemy"
+                        }],
                  "rotation":0,
                  "type":"enemySpawn",
                  "visible":true,
@@ -160,6 +178,12 @@
                  "height":19.3333,
                  "id":20,
                  "name":"",
+                 "properties":[
+                        {
+                         "name":"sprite",
+                         "type":"string",
+                         "value":"enemy"
+                        }],
                  "rotation":0,
                  "type":"enemySpawn",
                  "visible":true,
@@ -171,17 +195,29 @@
                  "height":19.3333,
                  "id":21,
                  "name":"",
+                 "properties":[
+                        {
+                         "name":"sprite",
+                         "type":"string",
+                         "value":"enemy"
+                        }],
                  "rotation":0,
                  "type":"enemySpawn",
                  "visible":true,
                  "width":219.333366666667,
-                 "x":678.333316666667,
-                 "y":290.33335
+                 "x":678.999983333333,
+                 "y":287.666683333333
                 }, 
                 {
                  "height":15.3333333333333,
                  "id":22,
                  "name":"",
+                 "properties":[
+                        {
+                         "name":"sprite",
+                         "type":"string",
+                         "value":"enemy"
+                        }],
                  "rotation":0,
                  "type":"enemySpawn",
                  "visible":true,

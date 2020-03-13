@@ -127,6 +127,12 @@
                  "height":39.0405522001726,
                  "id":11,
                  "name":"",
+                 "properties":[
+                        {
+                         "name":"sprite",
+                         "type":"string",
+                         "value":"enemy"
+                        }],
                  "rotation":0,
                  "type":"enemySpawn",
                  "visible":true,
@@ -138,6 +144,12 @@
                  "height":39.0406,
                  "id":13,
                  "name":"",
+                 "properties":[
+                        {
+                         "name":"sprite",
+                         "type":"string",
+                         "value":"enemy"
+                        }],
                  "rotation":0,
                  "type":"enemySpawn",
                  "visible":true,
