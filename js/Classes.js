@@ -336,23 +336,22 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     }
 
-    // move() {
-    //     // console.log(this.currentScene.enemy.x2)
-    //     if (!this.isDead()) {
-    //         console.log(this)
-    //         if (this.x > this.currentScene.enemy.x2) {              // James if you're seeing this, i know why it doesn't work
-    //             this.speedMult = -1;                                // it's because it's using a single X1 and X2 for all of
-    //             this.flipX = true;                                  // the enemies, instead of assigning each enemy its own
-    //             this.xCoord = 30;                                   // X1 and X2, I just figured this out and feel stupid
-    //         } else if (this.x < this.currentScene.enemy.x1) {       // I just need to figure out a way around this
-    //             this.speedMult = 1;                                 // would a forEach() work do you reckon? like a for loop
-    //             this.flipX = false;
-    //             this.xCoord = -25;
-    //         }
-    //         this.setVelocityX(30 * this.speedMult);
-    //     }
-    //     this.graphics.clear();
-    // }
+    move() {
+        if (!this.isDead()) {
+            console.log(this)
+            if (this.x > this.x2) {             
+                this.speedMult = -1;
+                this.flipX = true;
+                this.xCoord = 30;
+            } else if (this.x < this.x1) {
+                this.speedMult = 1;
+                this.flipX = false;
+                this.xCoord = -25;
+            }
+            this.setVelocityX(30 * this.speedMult);
+        }
+        this.graphics.clear();
+    }
 
     zoneChecker() {
         for (var i = 0; i < this.zones.length; i++) {
@@ -394,7 +393,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
 
     update() {
-
+        this.graphics.clear();
         this.zoneChecker();
         if (!this.isDead()) {
             if (this.seePlayer) {
@@ -402,21 +401,18 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 if (!this.usingAbility && this.seePlayer) {
                     this.enemyAttack();
                 }
-            } 
-            // else if (!this.seePlayer || !this.isBeingDamaged) {
-            //     this.scene.moveEnemy();
-            // }
+            }
+            else if (!this.seePlayer || !this.isBeingDamaged) {
+                this.move();
+                console.log(this)
+
+                this.setVelocityX(30 * this.speedMult);
+
                 if (this.body.velocity.x > 0 || this.body.velocity.x < 0) {
                     this.anims.play("enemy-walk", true)
                     this.usingAbility = false;
-                    /*
-                    this basically makes it so the enemy isn't 
-                    using an ability while it's moving, because
-                    I had an issue where this.usingAbility was 
-                    stuck on truewhen the play rushed through the
-                    sight of the enemy
-                    */
                 }
+            }
 
         } else if (this.isDead()) {
             this.setVelocityX(0)
