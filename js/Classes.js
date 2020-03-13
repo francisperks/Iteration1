@@ -336,22 +336,23 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     }
 
-    move() {
-        // console.log(this.currentScene.enemy.x2)
-        if (!this.isDead()) {
-            if (this.x > this.currentScene.enemy.x2) {              // James if you're seeing this, i know why it doesn't work
-                this.speedMult = -1;                                // it's because it's using a single X1 and X2 for all of
-                this.flipX = true;                                  // the enemies, instead of assigning each enemy its own
-                this.xCoord = 30;                                   // X1 and X2, I just figured this out and feel stupid
-            } else if (this.x < this.currentScene.enemy.x1) {       // I just need to figure out a way around this
-                this.speedMult = 1;                                 // would a forEach() work do you reckon? like a for loop
-                this.flipX = false;
-                this.xCoord = -25;
-            }
-            this.setVelocityX(30 * this.speedMult);
-        }
-        this.graphics.clear();
-    }
+    // move() {
+    //     // console.log(this.currentScene.enemy.x2)
+    //     if (!this.isDead()) {
+    //         console.log(this)
+    //         if (this.x > this.currentScene.enemy.x2) {              // James if you're seeing this, i know why it doesn't work
+    //             this.speedMult = -1;                                // it's because it's using a single X1 and X2 for all of
+    //             this.flipX = true;                                  // the enemies, instead of assigning each enemy its own
+    //             this.xCoord = 30;                                   // X1 and X2, I just figured this out and feel stupid
+    //         } else if (this.x < this.currentScene.enemy.x1) {       // I just need to figure out a way around this
+    //             this.speedMult = 1;                                 // would a forEach() work do you reckon? like a for loop
+    //             this.flipX = false;
+    //             this.xCoord = -25;
+    //         }
+    //         this.setVelocityX(30 * this.speedMult);
+    //     }
+    //     this.graphics.clear();
+    // }
 
     zoneChecker() {
         for (var i = 0; i < this.zones.length; i++) {
@@ -401,8 +402,10 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 if (!this.usingAbility && this.seePlayer) {
                     this.enemyAttack();
                 }
-            } else if (!this.seePlayer || !this.isBeingDamaged) {
-                this.move();
+            } 
+            // else if (!this.seePlayer || !this.isBeingDamaged) {
+            //     this.scene.moveEnemy();
+            // }
                 if (this.body.velocity.x > 0 || this.body.velocity.x < 0) {
                     this.anims.play("enemy-walk", true)
                     this.usingAbility = false;
@@ -414,7 +417,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                     sight of the enemy
                     */
                 }
-            }
 
         } else if (this.isDead()) {
             this.setVelocityX(0)

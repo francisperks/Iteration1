@@ -73,10 +73,6 @@ class BaseScene extends Phaser.Scene {
                     this.createPlayer(object);
                 } else if (object.type === "enemySpawn") {
                     this.createEnemy(object);
-                    this.enemy.x1 = object.x
-                    this.enemy.x2 = object.x + object.width
-                    // console.log("enemyX1  " + this.enemy.x1)
-                    // console.log("enemyX2  " + this.enemy.x2)
                 }
             }, this);
         }
@@ -84,7 +80,15 @@ class BaseScene extends Phaser.Scene {
         this.setCamera();
         this.cursors = this.input.keyboard.createCursorKeys();
         this.uiScene = this.scene.get('UIScene');
-        this.uiScene.createUIScene(this.scene.key);
+        this.uiScene.createUIScene(this.uiScene)
+        if(this.scene.isActive(this.uiScene)){
+            this.scene.bringToTop(this.uiScene);
+            this.uiScene.createUIScene(this.scene.key);
+        } else {
+            console.log(this.scene.key)
+            this.uiScene.createUIScene(this.scene.key);
+            this.scene.launch(this.uiScene);
+        }
     }
 
     update(time, dt) {
@@ -120,7 +124,28 @@ class BaseScene extends Phaser.Scene {
         this.enemies.add(this.enemy);
         this.scene.scene.enemy.giveZone();
         this.enemy.setDepth(4);
+        this.enemy.x1 = object.x
+        this.enemy.x2 = object.x + object.width
+        console.log(this.enemy)
         this.enemiesEnts.push(this.enemy);
+    }
+
+    moveEnemy() {
+        console.log(this.enemy.x2)
+        if (!this.enemy.isDead()) {
+            console.log(this)
+            if (this.enemy.x > this.enemy.x2) {              // James if you're seeing this, i know why it doesn't work
+                this.enemy.speedMult = -1;                                // it's because it's using a single X1 and X2 for all of
+                this.enemy.flipX = true;                                  // the enemies, instead of assigning each enemy its own
+                this.enemy.xCoord = 30;                                   // X1 and X2, I just figured this out and feel stupid
+            } else if (this.enemy.x < this.enemy.x1) {       // I just need to figure out a way around this
+                this.enemy.speedMult = 1;                                 // would a forEach() work do you reckon? like a for loop
+                this.enemy.flipX = false;
+                this.enemy.xCoord = -25;
+            }
+            this.enemy.setVelocityX(30 * this.enemy.speedMult);
+        }
+        this.enemy.graphics.clear();
     }
 
     createCollision() {
@@ -156,7 +181,7 @@ class UIScene extends Phaser.Scene {
             fill: '#000000'
         });
         this.createPauseMenu();
-        this.scene.launch(this);
+        // this.scene.launch(this);
     }
 
     updateScore() {
@@ -426,10 +451,7 @@ class Level2 extends BaseScene {
         this.map = this.make.tilemap({
             key: 'level2'
         });
-        this.uiScene = this.scene.get('UIScene');
-        this.scene.moveBelow(this.uiScene)
         super.create();
-
     }
 
     update() {
