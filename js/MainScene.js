@@ -75,8 +75,8 @@ class BaseScene extends Phaser.Scene {
                     this.createEnemy(object);
                     this.enemy.x1 = object.x
                     this.enemy.x2 = object.x + object.width
-                    console.log("enemyX1  " + this.enemy.x1)
-                    console.log("enemyX2  " + this.enemy.x2)
+                    // console.log("enemyX1  " + this.enemy.x1)
+                    // console.log("enemyX2  " + this.enemy.x2)
                 }
             }, this);
         }
@@ -336,7 +336,7 @@ class MenuScene extends Phaser.Scene {
         //Create the settingsMenu. Note this will not yet make it display in the scene.
         this.settingsMenu = new Menu(this, 0, 0, 840, 400, "menuBox", [
             new Button(this, 280 - 64, 20, "soundBtn", function () {
-                console.log(this.toggleOn);
+                // console.log(this.toggleOn);
                 this.scene.music.toggleMute();
             }, true, true, true, "noSoundBtn"),
             new Button(this, 560 - 64, 20, "homeBtn", function () {
@@ -426,6 +426,8 @@ class Level2 extends BaseScene {
         this.map = this.make.tilemap({
             key: 'level2'
         });
+        this.uiScene = this.scene.get('UIScene');
+        this.scene.moveBelow(this.uiScene)
         super.create();
 
     }

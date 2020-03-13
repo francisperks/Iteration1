@@ -337,7 +337,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     move() {
-        console.log(this.currentScene.enemy.x2)
+        // console.log(this.currentScene.enemy.x2)
         if (!this.isDead()) {
             if (this.x > this.currentScene.enemy.x2) {              // James if you're seeing this, i know why it doesn't work
                 this.speedMult = -1;                                // it's because it's using a single X1 and X2 for all of
