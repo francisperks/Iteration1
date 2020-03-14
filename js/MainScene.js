@@ -12,7 +12,7 @@ class BaseScene extends Phaser.Scene {
         this.score = 0;
         this.bullets = 0;
         this.uiScene = 0;
-        this.enemiesEnts = [];
+        this.enemies = [];
     }
     init(data) {
         console.log(data);
@@ -30,19 +30,58 @@ class BaseScene extends Phaser.Scene {
         }
     }
     preload() {
-        this.load.spritesheet('player-idle', 'assets/player/player_idle-new.png', { frameWidth: 64, frameHeight: 48 });
-        this.load.spritesheet('player-attack1', 'assets/player/player_attack1-new.png', { frameWidth: 64, frameHeight: 48 });
-        this.load.spritesheet('player-attack2', 'assets/player/player_attack2-new.png', { frameWidth: 64, frameHeight: 48 });
-        this.load.spritesheet('player-attack3', 'assets/player/player_attack3.png', { frameWidth: 48, frameHeight: 48 });
-        this.load.spritesheet('player-death', 'assets/player/player_death.png', { frameWidth: 48, frameHeight: 48 });
-        this.load.spritesheet('player-walk', 'assets/player/player_walk.png', { frameWidth: 64, frameHeight: 48 });
-        this.load.spritesheet('player-jump', 'assets/player/player_jump-new.png', { frameWidth: 64, frameHeight: 48 });
-        this.load.spritesheet('enemy-idle', 'assets/enemy/enemy_idle-new.png', { frameWidth: 48, frameHeight: 40 });
-        this.load.spritesheet('enemy-walk', 'assets/enemy/enemy_walk-new.png', { frameWidth: 48, frameHeight: 40 });
-        this.load.spritesheet('enemy-die', 'assets/enemy/enemy-die.png', { frameWidth: 48, frameHeight: 40 });
-        this.load.spritesheet('enemy_attack', 'assets/enemy/enemy_attack-new.png', { frameWidth: 48, frameHeight: 40 });
-        this.load.spritesheet('enemy-hit', 'assets/enemy/enemy_hit.png', { frameWidth: 48, frameHeight: 40 });
-        this.load.spritesheet('slash', 'assets/slash-thick.png', { frameWidth: 30, frameHeight: 48 });
+        this.load.spritesheet('player-idle', 'assets/player/player_idle-new.png', {
+            frameWidth: 64,
+            frameHeight: 48
+        });
+        this.load.spritesheet('player-attack1', 'assets/player/player_attack1-new.png', {
+            frameWidth: 64,
+            frameHeight: 48
+        });
+        this.load.spritesheet('player-attack2', 'assets/player/player_attack2-new.png', {
+            frameWidth: 64,
+            frameHeight: 48
+        });
+        this.load.spritesheet('player-attack3', 'assets/player/player_attack3.png', {
+            frameWidth: 48,
+            frameHeight: 48
+        });
+        this.load.spritesheet('player-death', 'assets/player/player_death.png', {
+            frameWidth: 48,
+            frameHeight: 48
+        });
+        this.load.spritesheet('player-walk', 'assets/player/player_walk.png', {
+            frameWidth: 64,
+            frameHeight: 48
+        });
+        this.load.spritesheet('player-jump', 'assets/player/player_jump-new.png', {
+            frameWidth: 64,
+            frameHeight: 48
+        });
+        this.load.spritesheet('enemy-idle', 'assets/enemy/enemy_idle-new.png', {
+            frameWidth: 48,
+            frameHeight: 40
+        });
+        this.load.spritesheet('enemy-walk', 'assets/enemy/enemy_walk-new.png', {
+            frameWidth: 48,
+            frameHeight: 40
+        });
+        this.load.spritesheet('enemy-die', 'assets/enemy/enemy-die.png', {
+            frameWidth: 48,
+            frameHeight: 40
+        });
+        this.load.spritesheet('enemy_attack', 'assets/enemy/enemy_attack-new.png', {
+            frameWidth: 48,
+            frameHeight: 40
+        });
+        this.load.spritesheet('enemy-hit', 'assets/enemy/enemy_hit.png', {
+            frameWidth: 48,
+            frameHeight: 40
+        });
+        this.load.spritesheet('slash', 'assets/slash-thick.png', {
+            frameWidth: 30,
+            frameHeight: 48
+        });
         this.load.image('bullet', 'assets/bullet.png');
         this.load.image('tileset', 'assets/tileset_Padded.png');
         this.load.image('clouds', 'assets/clouds.png');
@@ -64,7 +103,6 @@ class BaseScene extends Phaser.Scene {
         this.map.createStaticLayer('background-0', [this.map.mainTileset], 0, 0);
         this.map.createStaticLayer('platforms', [this.map.mainTileset], 0, 0);
 
-
         let objectLayer = this.map.getObjectLayer("objects");
         if (objectLayer) {
             objectLayer.objects.forEach(function (object) {
@@ -76,12 +114,13 @@ class BaseScene extends Phaser.Scene {
                 }
             }, this);
         }
+
         this.createCollision();
         this.setCamera();
         this.cursors = this.input.keyboard.createCursorKeys();
         this.uiScene = this.scene.get('UIScene');
         this.uiScene.createUIScene(this.uiScene)
-        if(this.scene.isActive(this.uiScene)){
+        if (this.scene.isActive(this.uiScene)) {
             this.scene.bringToTop(this.uiScene);
             this.uiScene.createUIScene(this.scene.key);
         } else {
@@ -107,6 +146,7 @@ class BaseScene extends Phaser.Scene {
             this.player.body.x = 144;
         }
         this.uiScene.updateScore();
+
     }
 
     createPlayer(object) {
@@ -123,8 +163,27 @@ class BaseScene extends Phaser.Scene {
         this.enemies.add(this.enemy);
         this.scene.scene.enemy.giveZone();
         this.enemy.setDepth(4);
-        this.enemy.x1 = object.x; this.enemy.x2 = object.x + object.width
-        this.enemiesEnts.push(this.enemy);
+        this.enemy.x1 = object.x;
+        this.enemy.x2 = object.x + object.width
+        // this.enemiesEnts.push(this.enemy);
+    }
+
+    processExit(levelKey) {
+
+        if (this.enemies.countActive() == 0) {
+            this.uiScene.loading.text = "Loading Next Level"
+            this.time.addEvent({
+                delay: 2000,
+                callback: () => {
+                    this.time.addEvent({
+                        delay: 200,
+                        callback: () => {
+                            this.scene.start(levelKey);
+                        }
+                    })
+                }
+            });
+        }
     }
 
     createCollision() {
@@ -140,12 +199,6 @@ class BaseScene extends Phaser.Scene {
         this.camera.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
         this.camera.setZoom(2.5);
     }
-
-    checkAllDead(levelKey) {
-        if (this.enemiesEnts.length == 0) {
-            this.scene.start(levelKey);
-        }
-    }
 }
 
 class UIScene extends Phaser.Scene {
@@ -159,8 +212,15 @@ class UIScene extends Phaser.Scene {
             font: '20px Arial',
             fill: '#000000'
         });
+        this.loading = this.add.text(600, 360, '', {
+            font: '40px Arial',
+            fill: '#000000'
+        });
         this.createPauseMenu();
-        // this.scene.launch(this);
+    }
+
+    flipLoadingText(){
+        this.loading.setVisible(!this.loading.visible)
     }
 
     updateScore() {
@@ -362,6 +422,7 @@ class MenuScene extends Phaser.Scene {
         //Hide the settingsMenu.
         this.settingsMenu.visible = false;
 
+
         //If a pointer goes up on the scene (but not over a sprite) this event will fire.
         //Its aim is to find the Button that pointer was pressed down on and clear the applied tint.
         this.input.on("pointerup", function (pointer) {
@@ -409,8 +470,8 @@ class Level1 extends BaseScene {
     }
 
     update() {
-        super.checkAllDead('Level2')
         super.update();
+        this.processExit("Level2")
     }
 
 
@@ -434,7 +495,6 @@ class Level2 extends BaseScene {
     }
 
     update() {
-        // super.checkAllDead('Level3')
         super.update();
     }
 }

@@ -338,7 +338,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     move() {
         if (!this.isDead()) {
-            console.log(this)
             if (this.x > this.x2) {             
                 this.speedMult = -1;
                 this.flipX = true;
@@ -349,6 +348,8 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 this.xCoord = -25;
             }
             this.setVelocityX(30 * this.speedMult);
+        } else if(this.isDead()){
+            console.log("enemy dead")
         }
         this.graphics.clear();
     }
@@ -404,10 +405,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
             }
             else if (!this.seePlayer || !this.isBeingDamaged) {
                 this.move();
-                console.log(this)
-
                 this.setVelocityX(30 * this.speedMult);
-
                 if (this.body.velocity.x > 0 || this.body.velocity.x < 0) {
                     this.anims.play("enemy-walk", true)
                     this.usingAbility = false;
@@ -416,7 +414,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         } else if (this.isDead()) {
             this.setVelocityX(0)
-            this.currentScene.enemiesEnts.splice(this, 1)
             this.anims.play("enemy-die", true)
             this.on('animationcomplete', function () {
                 this.destroy();
