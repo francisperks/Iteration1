@@ -146,8 +146,6 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 this.usingAbility = false;
             }
         })
-        // console.log("this is attack" + attack)
-        // console.log("this is enemy" + this.scene.enemy)
     }
 
     attackTwo() {
@@ -181,12 +179,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 this.usingAbility = false;
             }
         })
-        // console.log("this is attack" + attack)
-        // console.log("this is enemy" + this.scene.enemy)
     }
 
     abilityHeal() {
-        this.setVelocityY(-500)
+        this.setVelocityY(-200)
+        this.setVelocityX(200)
     }
 }
 

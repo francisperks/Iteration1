@@ -164,17 +164,21 @@ class BaseScene extends Phaser.Scene {
         this.scene.scene.enemy.giveZone();
         this.enemy.setDepth(4);
         this.enemy.x1 = object.x;
-        this.enemy.x2 = object.x + object.width
-        // this.enemiesEnts.push(this.enemy);
+        this.enemy.x2 = object.x + object.width;
     }
 
     processExit(levelKey) {
-
+        
         if (this.enemies.countActive() == 0) {
-            this.uiScene.loading.text = "Loading Next Level"
+            let text = "Loading Next Level"
+            this.uiScene.add.text(100, 100, text, {
+                font: '50px Arial',
+                fill: '#000000'
+            })
             this.time.addEvent({
                 delay: 2000,
                 callback: () => {
+                    let text = ""
                     this.time.addEvent({
                         delay: 200,
                         callback: () => {
@@ -206,21 +210,15 @@ class UIScene extends Phaser.Scene {
         super("UIScene");
     }
 
+
+
     createUIScene(sceneKey) {
         this.currentScene = this.scene.get(sceneKey);
         this.score = this.add.text(10, 10, 'Score: 0', {
             font: '20px Arial',
             fill: '#000000'
         });
-        this.loading = this.add.text(600, 360, '', {
-            font: '40px Arial',
-            fill: '#000000'
-        });
         this.createPauseMenu();
-    }
-
-    flipLoadingText(){
-        this.loading.setVisible(!this.loading.visible)
     }
 
     updateScore() {
