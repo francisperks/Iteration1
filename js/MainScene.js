@@ -13,6 +13,7 @@ class BaseScene extends Phaser.Scene {
         this.bullets = 0;
         this.uiScene = 0;
         this.enemies = [];
+        this.timer = 0;
     }
     init(data) {
         console.log(data);
@@ -30,6 +31,8 @@ class BaseScene extends Phaser.Scene {
         }
     }
     preload() {
+        this.time.advancedTiming = true;
+
         this.load.spritesheet('player-idle', 'assets/player/player_idle-new.png', {
             frameWidth: 64,
             frameHeight: 48
@@ -119,7 +122,7 @@ class BaseScene extends Phaser.Scene {
         this.setCamera();
         this.cursors = this.input.keyboard.createCursorKeys();
         this.uiScene = this.scene.get('UIScene');
-        this.uiScene.createUIScene(this.uiScene)
+        // this.uiScene.createUIScene(this.uiScene)
         if (this.scene.isActive(this.uiScene)) {
             this.scene.bringToTop(this.uiScene);
             this.uiScene.createUIScene(this.scene.key);
@@ -127,8 +130,6 @@ class BaseScene extends Phaser.Scene {
             this.uiScene.createUIScene(this.scene.key);
             this.scene.launch(this.uiScene);
         }
-        console.log(this.enemies.countActive())
-        console.log(this.enemy)
 
     }
 
@@ -150,7 +151,10 @@ class BaseScene extends Phaser.Scene {
             this.player.body.x = 144;
         }
         this.uiScene.updateScore();
+    }
 
+    render(){
+        this.debug.text('FPS: ' + game.time.fps || 'FPS: --', 40, 40, "#00ff00");
     }
 
     createPlayer(object) {
@@ -193,14 +197,19 @@ class UIScene extends Phaser.Scene {
         super("UIScene");
     }
 
-
-
-    createUIScene(sceneKey) {
-        this.currentScene = this.scene.get(sceneKey);
+    preload(){
         this.score = this.add.text(10, 10, 'Score: 0', {
             font: '20px Arial',
             fill: '#000000'
         });
+    }
+
+    createUIScene(sceneKey) {
+        this.currentScene = this.scene.get(sceneKey);
+        // this.score = this.add.text(10, 10, 'Score: 0', {
+        //     font: '20px Arial',
+        //     fill: '#000000'
+        // });
         this.fps = this.add.text(10, 40, "", {
             font: '16px Arial',
             fill: '#000000'
@@ -211,8 +220,6 @@ class UIScene extends Phaser.Scene {
 
     updateFPS() {
         let randomFPS = Math.floor(Math.random() * Math.floor(100))
-        console.log(randomFPS)
-        console.log(this.fps)
         if (randomFPS <= 25) {
             this.fps.setText("FPS: 58");
         } else if(randomFPS <= 70){
@@ -220,7 +227,6 @@ class UIScene extends Phaser.Scene {
         } else {
             this.fps.setText("FPS: 60");
         }
-
     }
 
     updateScore() {
@@ -479,6 +485,10 @@ class Level1 extends BaseScene {
 class Level2 extends BaseScene {
     constructor() {
         super('Level2');
+    }
+    
+    init(data){
+        this.score = data.score;
     }
 
     preload() {
