@@ -153,7 +153,7 @@ class BaseScene extends Phaser.Scene {
         this.uiScene.updateScore();
     }
 
-    render(){
+    render() {
         this.debug.text('FPS: ' + game.time.fps || 'FPS: --', 40, 40, "#00ff00");
     }
 
@@ -197,7 +197,7 @@ class UIScene extends Phaser.Scene {
         super("UIScene");
     }
 
-    preload(){
+    preload() {
         this.score = this.add.text(10, 10, 'Score: 0', {
             font: '20px Arial',
             fill: '#000000'
@@ -221,11 +221,29 @@ class UIScene extends Phaser.Scene {
     updateFPS() {
         let randomFPS = Math.floor(Math.random() * Math.floor(100))
         if (randomFPS <= 25) {
-            this.fps.setText("FPS: 58");
-        } else if(randomFPS <= 70){
-            this.fps.setText("FPS: 59");
+            this.currentScene.time.addEvent({
+                delay: 20000,
+                callback: () => {
+
+                    this.fps.setText("FPS: 58");
+                }
+            });
+        } else if (randomFPS <= 70) {
+            this.currentScene.time.addEvent({
+                delay: 20000,
+                callback: () => {
+
+                    this.fps.setText("FPS: 59");
+                }
+            });
         } else {
-            this.fps.setText("FPS: 60");
+            this.currentScene.time.addEvent({
+                delay: 20000,
+                callback: () => {
+
+                    this.fps.setText("FPS: 60");
+                }
+            });
         }
     }
 
@@ -486,8 +504,8 @@ class Level2 extends BaseScene {
     constructor() {
         super('Level2');
     }
-    
-    init(data){
+
+    init(data) {
         this.score = data.score;
     }
 
