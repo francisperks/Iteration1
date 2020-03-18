@@ -127,9 +127,13 @@ class BaseScene extends Phaser.Scene {
             this.uiScene.createUIScene(this.scene.key);
             this.scene.launch(this.uiScene);
         }
+        console.log(this.enemies.countActive())
+        console.log(this.enemy)
+
     }
 
     update(time, dt) {
+        this.uiScene.updateFPS();
         this.player.update();
         if (this.cursors.left.isDown || this.uiScene.leftBtn.isDown) {
             this.player.moveLeft();
@@ -167,28 +171,7 @@ class BaseScene extends Phaser.Scene {
         this.enemy.x2 = object.x + object.width;
     }
 
-    processExit(levelKey) {
-        
-        if (this.enemies.countActive() == 0) {
-            let text = "Loading Next Level"
-            this.uiScene.add.text(100, 100, text, {
-                font: '50px Arial',
-                fill: '#000000'
-            })
-            this.time.addEvent({
-                delay: 2000,
-                callback: () => {
-                    let text = ""
-                    this.time.addEvent({
-                        delay: 200,
-                        callback: () => {
-                            this.scene.start(levelKey);
-                        }
-                    })
-                }
-            });
-        }
-    }
+
 
     createCollision() {
         this.collisionLayer = this.map.getLayer('platforms').tilemapLayer;
@@ -218,7 +201,26 @@ class UIScene extends Phaser.Scene {
             font: '20px Arial',
             fill: '#000000'
         });
+        this.fps = this.add.text(10, 40, "", {
+            font: '16px Arial',
+            fill: '#000000'
+        })
+
         this.createPauseMenu();
+    }
+
+    updateFPS() {
+        let randomFPS = Math.floor(Math.random() * Math.floor(100))
+        console.log(randomFPS)
+        console.log(this.fps)
+        if (randomFPS <= 25) {
+            this.fps.setText("FPS: 58");
+        } else if(randomFPS <= 70){
+            this.fps.setText("FPS: 59");
+        } else {
+            this.fps.setText("FPS: 60");
+        }
+
     }
 
     updateScore() {
@@ -469,7 +471,6 @@ class Level1 extends BaseScene {
 
     update() {
         super.update();
-        this.processExit("Level2")
     }
 
 

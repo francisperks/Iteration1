@@ -217,6 +217,26 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         scene.add.existing(this);
         this.currentScene = this.scene;
 
+        
+        this.on('animationcomplete-enemy-die', function () {
+            console.log("Enemy Dead")
+            this.destroy();
+            if(this.currentScene.enemies.countActive() == 0){
+                console.log("All enemies dead")
+                this.text = this.currentScene.uiScene.add.text(100, 100, "Loading Next Level", {
+                    font: '50px Arial',
+                    fill: '#000000'
+                })
+                this.currentScene.time.addEvent({
+                    delay: 2000,
+                    callback: () => {
+                        this.text.setText("")
+                        this.currentScene.scene.start("Level2")
+                    }
+                });
+            }
+        });
+
         this.zones = [];
 
         this.scene.anims.create({
@@ -297,6 +317,21 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
+    processExit(levelKey) {
+        if (this.currentScene.enemies.countActive() == 0) {
+            this.text = this.currentScene.uiScene.add.text(100, 100, "Loading Next Level", {
+                font: '50px Arial',
+                fill: '#000000'
+            })
+            this.currentScene.time.addEvent({
+                delay: 2000,
+                callback: () => {
+                    this.currentScene.scene.start(levelKey);
+                }
+            });
+        }
+    }
+
     enemyAttack() {
         if (!this.seePlayer) {
             this.usingAbility = false;
@@ -346,7 +381,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
             }
             this.setVelocityX(30 * this.speedMult);
         } else if(this.isDead()){
-            console.log("enemy dead")
         }
         this.graphics.clear();
     }
@@ -412,9 +446,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         } else if (this.isDead()) {
             this.setVelocityX(0)
             this.anims.play("enemy-die", true)
-            this.on('animationcomplete', function () {
-                this.destroy();
-            });
         }
     }
 }
