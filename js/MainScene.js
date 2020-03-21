@@ -2,7 +2,6 @@
 class BaseScene extends Phaser.Scene {
     constructor(key) {
         super(key);
-
         this.map = 0;
         this.player = 0;
         this.enemies = 0;
@@ -219,29 +218,35 @@ class UIScene extends Phaser.Scene {
     }
 
     updateFPS() {
-        let randomFPS = Math.floor(Math.random() * Math.floor(100))
-        if (randomFPS <= 25) {
-            this.currentScene.time.addEvent({
-                delay: 20000,
-                callback: () => {
+        // so if i console log the random number
 
-                    this.fps.setText("FPS: 58");
+        // so i just broke it, now it doesn't work
+
+
+
+        let randomFPS = Math.floor(Math.random() * Math.floor(100)) /// create a random number between 0 and 100
+        console.log(randomFPS)
+        if (randomFPS <= 25) {          // if the number is less than 25 FPS is 58
+            this.currentScene.time.addEvent({
+                delay: 200,
+                callback: () => {
+                    this.fps.setText("FPS: 405670");
                 }
             });
         } else if (randomFPS <= 70) {
             this.currentScene.time.addEvent({
-                delay: 20000,
+                delay: 200,
                 callback: () => {
 
-                    this.fps.setText("FPS: 59");
+                    this.fps.setText("FPS: 955670");
                 }
             });
         } else {
             this.currentScene.time.addEvent({
-                delay: 20000,
+                delay: 200,
                 callback: () => {
 
-                    this.fps.setText("FPS: 60");
+                    this.fps.setText("FPS: 9975679");
                 }
             });
         }
