@@ -48,7 +48,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
     moveJump() {
         if (this.body.onFloor()) {
-            this.setVelocityY(-170)
+            this.setVelocityY(-175)
         }
     }
 
