@@ -15,7 +15,6 @@ class BaseScene extends Phaser.Scene {
         this.timer = 0;
     }
     init(data) {
-        console.log(data);
         this.music = new AudioManager(this);
         this.sfx = new AudioManager(this);
 
@@ -113,8 +112,11 @@ class BaseScene extends Phaser.Scene {
                     this.createPlayer(object);
                 } else if (object.type === "enemySpawn") {
                     this.createEnemy(object);
+                    console.log(this)
                 }
             }, this);
+
+    
         }
 
         this.createCollision();
@@ -225,7 +227,6 @@ class UIScene extends Phaser.Scene {
 
 
         let randomFPS = Math.floor(Math.random() * Math.floor(100)) /// create a random number between 0 and 100
-        console.log(randomFPS)
         if (randomFPS <= 25) {          // if the number is less than 25 FPS is 58
             this.currentScene.time.addEvent({
                 delay: 200,
